@@ -6,6 +6,7 @@
   let toolBoxData = $state([]);
   let mostUsedChartsData = $state([]);
   let loading = $state(true);
+  let isRefreshing = $state(false);
   let error = $state(null);
   let lastUpdate = $state(null);
 
@@ -131,11 +132,35 @@
     return data;
   }
 
-  async function loadData() {
-    const timestamp = new Date().toISOString();
-    console.log(`[${timestamp}] [loadData] Starting data load...`);
+  /**
+   * Compares two data arrays to check if they have changed
+   * Returns true if data is different, false if same
+   */
+  function hasDataChanged(oldData, newData) {
+    if (!oldData || oldData.length === 0) return true;
+    if (oldData.length !== newData.length) return true;
     
-    loading = true;
+    // Compare each item
+    for (let i = 0; i < oldData.length; i++) {
+      if (oldData[i].label !== newData[i].label || 
+          oldData[i].value !== newData[i].value) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+
+  async function loadData(isBackgroundRefresh = false) {
+    const timestamp = new Date().toISOString();
+    console.log(`[${timestamp}] [loadData] Starting data load...${isBackgroundRefresh ? ' (background refresh)' : ''}`);
+    
+    // Only set loading state on initial load, not on background refresh
+    if (!isBackgroundRefresh) {
+      loading = true;
+    } else {
+      isRefreshing = true;
+    }
     error = null;
     
     try {
@@ -144,16 +169,30 @@
         fetchCSVData(CHARTS_CSV)
       ]);
       
-      toolBoxData = combineCategories(toolbox);
-      mostUsedChartsData = charts;
-      lastUpdate = new Date();
+      const newToolBoxData = combineCategories(toolbox);
+      const newChartsData = charts;
       
-      console.log(`[${timestamp}] [loadData] Data loaded successfully`);
-      console.log('  - ToolBox data items:', toolBoxData.length);
-      console.log('  - Charts data items:', mostUsedChartsData.length);
-      // NOTE: Full data logging is for testing/debugging. Consider removing in production.
-      console.log('  - ToolBox data:', JSON.stringify(toolBoxData, null, 2));
-      console.log('  - Charts data:', JSON.stringify(mostUsedChartsData, null, 2));
+      // Check if data has actually changed
+      const toolboxChanged = hasDataChanged(toolBoxData, newToolBoxData);
+      const chartsChanged = hasDataChanged(mostUsedChartsData, newChartsData);
+      
+      if (toolboxChanged || chartsChanged) {
+        console.log(`[${timestamp}] [loadData] Data has changed - updating charts`);
+        console.log('  - ToolBox changed:', toolboxChanged);
+        console.log('  - Charts changed:', chartsChanged);
+        
+        toolBoxData = newToolBoxData;
+        mostUsedChartsData = newChartsData;
+        lastUpdate = new Date();
+        
+        console.log('  - ToolBox data items:', toolBoxData.length);
+        console.log('  - Charts data items:', mostUsedChartsData.length);
+        // NOTE: Full data logging is for testing/debugging. Consider removing in production.
+        console.log('  - ToolBox data:', JSON.stringify(toolBoxData, null, 2));
+        console.log('  - Charts data:', JSON.stringify(mostUsedChartsData, null, 2));
+      } else {
+        console.log(`[${timestamp}] [loadData] No data changes detected - keeping current charts`);
+      }
     } catch (err) {
       console.error(`[${timestamp}] [loadData] Error loading data:`, err);
       console.error('  - Error message:', err.message);
@@ -177,7 +216,8 @@
       console.log(`[${timestamp}] [loadData] Using sample data due to error`);
     } finally {
       loading = false;
-      console.log(`[${timestamp}] [loadData] Load complete (loading = false)`);
+      isRefreshing = false;
+      console.log(`[${timestamp}] [loadData] Load complete`);
     }
   }
 
@@ -185,13 +225,13 @@
 
   onMount(() => {
     console.log('[onMount] Component mounted, initializing...');
-    loadData();
+    loadData(false); // Initial load, not a background refresh
     
     // Set up automatic polling for data updates
     console.log(`[onMount] Setting up auto-refresh every ${REFRESH_INTERVAL / 1000} seconds`);
     refreshInterval = setInterval(() => {
       console.log('[Auto-refresh] Checking for data updates...');
-      loadData();
+      loadData(true); // Background refresh
     }, REFRESH_INTERVAL);
     
     // Listen for webhook updates (for future WebSocket implementation)
@@ -202,7 +242,7 @@
         console.log(`[${timestamp}] [data-update] Event received!`);
         console.log('  - Event detail:', JSON.stringify(event.detail, null, 2));
         console.log('  - Triggering data reload...');
-        loadData();
+        loadData(true); // Background refresh for webhook updates too
       });
       console.log('[onMount] Event listener registered successfully');
     } else {
@@ -231,7 +271,7 @@
     </div>
   {/if}
 
-  {#if error}
+  {#if error && !loading}
     <div class="error">
       <p>Note: Using sample data. {error}</p>
     </div>
@@ -239,8 +279,13 @@
 
   {#if !loading}
     {#if lastUpdate}
-      <div class="update-info">
-        <p>Last updated: {lastUpdate.toLocaleTimeString()} • Auto-refreshing every {REFRESH_INTERVAL / 1000}s</p>
+      <div class="update-info" class:refreshing={isRefreshing}>
+        <p>
+          Last updated: {lastUpdate.toLocaleTimeString()} • Auto-refreshing every {REFRESH_INTERVAL / 1000}s
+          {#if isRefreshing}
+            <span class="refresh-indicator">↻ Checking for updates...</span>
+          {/if}
+        </p>
       </div>
     {/if}
     
@@ -329,6 +374,11 @@
     border-radius: 8px;
     margin-bottom: 1.5rem;
     border: 1px solid #b3d9ff;
+    transition: background-color 0.3s ease;
+  }
+  
+  .update-info.refreshing {
+    background: #d4edff;
   }
   
   .update-info p {
@@ -336,6 +386,22 @@
     font-size: 0.875rem;
     color: #0066cc;
     font-weight: 500;
+  }
+  
+  .refresh-indicator {
+    margin-left: 0.5rem;
+    font-weight: 600;
+    display: inline-block;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   .chart-section, .qr-section {
