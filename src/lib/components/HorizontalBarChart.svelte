@@ -54,7 +54,7 @@
       
       // Calculate dy offset to center the text based on number of lines
       // For multi-line text, shift up by half the total height to center
-      const dyOffset = -(lineCount - 1) * lineHeight / 2;
+      const dyOffset = -(lineCount - 1) * lineHeight;
       
       // Second pass: actually create the wrapped text with proper centering
       line = [];
