@@ -1,5 +1,7 @@
 <script>
   import { onMount } from 'svelte';
+  import { tweened } from 'svelte/motion';
+  import { cubicOut } from 'svelte/easing';
   import * as d3 from 'd3';
 
   let { 
@@ -11,6 +13,9 @@
 
   let chartContainer;
   let mounted = $state(false);
+  
+  // Store animated values for each bar
+  let barAnimations = new Map();
 
   // Constants
   const LABEL_PADDING = 10; // Padding for axis labels in pixels
@@ -88,9 +93,6 @@
   function renderChart() {
     if (!chartContainer || !data || data.length === 0) return;
 
-    // Clear previous chart
-    d3.select(chartContainer).selectAll('*').remove();
-
     // Sort data in descending order by value (highest values on top)
     const sortedData = [...data].sort((a, b) => b.value - a.value);
 
@@ -114,13 +116,27 @@
     const calculatedHeight = Math.max(minHeight, (sortedData.length * barHeight) + margin.top + margin.bottom);
     const chartHeight = calculatedHeight - margin.top - margin.bottom;
 
-    // Create SVG
-    const svg = d3.select(chartContainer)
-      .append('svg')
-      .attr('width', containerWidth)
-      .attr('height', calculatedHeight)
-      .append('g')
-      .attr('transform', `translate(${margin.left},${margin.top})`);
+    // Check if SVG already exists
+    let svg = d3.select(chartContainer).select('svg');
+    const isInitialRender = svg.empty();
+
+    if (isInitialRender) {
+      // Create SVG for initial render
+      svg = d3.select(chartContainer)
+        .append('svg')
+        .attr('width', containerWidth)
+        .attr('height', calculatedHeight)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+    } else {
+      // Update SVG dimensions
+      d3.select(chartContainer).select('svg')
+        .attr('width', containerWidth)
+        .attr('height', calculatedHeight);
+      
+      svg = d3.select(chartContainer).select('svg g');
+      svg.attr('transform', `translate(${margin.left},${margin.top})`);
+    }
 
     // Determine x scale domain
     // Default to [0,5] if max value is less than 5
@@ -144,24 +160,62 @@
 
     const yAxis = d3.axisLeft(yScale);
 
-    // Add X axis
-    svg.append('g')
-      .attr('transform', `translate(0,${chartHeight})`)
-      .call(xAxis)
-      .selectAll('text')
-      .style('font-size', '12px');
+    if (isInitialRender) {
+      // Add X axis
+      svg.append('g')
+        .attr('class', 'x-axis')
+        .attr('transform', `translate(0,${chartHeight})`)
+        .call(xAxis)
+        .selectAll('text')
+        .style('font-size', '12px');
 
-    // Add Y axis
-    svg.append('g')
-      .call(yAxis)
-      .selectAll('text')
-      .style('font-size', '12px')
-      .call(wrapText, margin.left - LABEL_PADDING); // Wrap text to fit within left margin
+      // Add Y axis
+      svg.append('g')
+        .attr('class', 'y-axis')
+        .call(yAxis)
+        .selectAll('text')
+        .style('font-size', '12px')
+        .call(wrapText, margin.left - LABEL_PADDING);
+    } else {
+      // Update axes
+      svg.select('.x-axis')
+        .attr('transform', `translate(0,${chartHeight})`)
+        .transition()
+        .duration(600)
+        .call(xAxis);
+      
+      svg.select('.x-axis')
+        .selectAll('text')
+        .style('font-size', '12px');
 
-    // Add bars
-    svg.selectAll('.bar')
-      .data(sortedData)
-      .enter()
+      svg.select('.y-axis')
+        .transition()
+        .duration(600)
+        .call(yAxis);
+      
+      svg.select('.y-axis')
+        .selectAll('text')
+        .style('font-size', '12px')
+        .call(wrapText, margin.left - LABEL_PADDING);
+    }
+
+    // Update or create animated tweened values for bars
+    sortedData.forEach(d => {
+      if (!barAnimations.has(d.label)) {
+        barAnimations.set(d.label, tweened(0, {
+          duration: 800,
+          easing: cubicOut
+        }));
+      }
+      barAnimations.get(d.label).set(d.value);
+    });
+
+    // Data join for bars with enter/update/exit pattern
+    const bars = svg.selectAll('.bar')
+      .data(sortedData, d => d.label);
+
+    // Enter new bars
+    bars.enter()
       .append('rect')
       .attr('class', 'bar')
       .attr('x', 0)
@@ -174,10 +228,26 @@
       .duration(800)
       .attr('width', d => xScale(d.value));
 
-    // Add value labels
-    svg.selectAll('.label')
-      .data(sortedData)
-      .enter()
+    // Update existing bars
+    bars.transition()
+      .duration(600)
+      .attr('y', d => yScale(d.label))
+      .attr('height', yScale.bandwidth())
+      .attr('width', d => xScale(d.value));
+
+    // Exit old bars
+    bars.exit()
+      .transition()
+      .duration(400)
+      .attr('width', 0)
+      .remove();
+
+    // Data join for labels
+    const labels = svg.selectAll('.label')
+      .data(sortedData, d => d.label);
+
+    // Enter new labels
+    labels.enter()
       .append('text')
       .attr('class', 'label')
       .attr('x', d => xScale(d.value) + 5)
@@ -189,8 +259,22 @@
       .text(d => d.value)
       .transition()
       .duration(800)
-      .delay(400)
+      .delay(200)
       .style('opacity', 1);
+
+    // Update existing labels
+    labels.transition()
+      .duration(600)
+      .attr('x', d => xScale(d.value) + 5)
+      .attr('y', d => yScale(d.label) + yScale.bandwidth() / 2)
+      .text(d => d.value);
+
+    // Exit old labels
+    labels.exit()
+      .transition()
+      .duration(400)
+      .style('opacity', 0)
+      .remove();
   }
 
   onMount(() => {
