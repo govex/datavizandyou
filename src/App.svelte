@@ -154,7 +154,6 @@
       <HorizontalBarChart 
         data={toolBoxData} 
         color="#4A90E2"
-        height={300}
       />
     </section>
 
@@ -163,7 +162,6 @@
       <HorizontalBarChart 
         data={mostUsedChartsData} 
         color="#50C878"
-        height={300}
       />
     </section>
 

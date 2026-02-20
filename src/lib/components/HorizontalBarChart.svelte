@@ -5,7 +5,8 @@
   let { 
     data = [], 
     color = '#4A90E2',
-    height = 300 
+    barHeight = 50,
+    minHeight = 200
   } = $props();
 
   let chartContainer;
@@ -20,13 +21,16 @@
     const containerWidth = chartContainer.clientWidth;
     const margin = { top: 20, right: 30, bottom: 40, left: 120 };
     const width = containerWidth - margin.left - margin.right;
-    const chartHeight = height - margin.top - margin.bottom;
+    
+    // Calculate dynamic height based on number of bars
+    const calculatedHeight = Math.max(minHeight, (data.length * barHeight) + margin.top + margin.bottom);
+    const chartHeight = calculatedHeight - margin.top - margin.bottom;
 
     // Create SVG
     const svg = d3.select(chartContainer)
       .append('svg')
       .attr('width', containerWidth)
-      .attr('height', height)
+      .attr('height', calculatedHeight)
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
@@ -127,7 +131,7 @@
 <style>
   .chart-container {
     width: 100%;
-    min-height: 300px;
+    min-height: 200px;
     position: relative;
   }
 
