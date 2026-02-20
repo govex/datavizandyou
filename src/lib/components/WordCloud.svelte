@@ -21,7 +21,9 @@
     if (!chartContainer || !data || data.length === 0) return;
 
     const containerWidth = chartContainer.clientWidth;
-    const containerHeight = Math.max(minHeight, containerWidth * 0.6);
+    // 2:1 aspect ratio on desktop (half as tall as wide), square on mobile
+    const aspectRatio = containerWidth >= 768 ? 0.5 : 1;
+    const containerHeight = Math.max(minHeight, containerWidth * aspectRatio);
 
     // Clear existing SVG
     d3.select(chartContainer).select('svg').remove();

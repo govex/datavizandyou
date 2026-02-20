@@ -270,7 +270,7 @@
       </div>
       <div class="hero-buttons">
         <div class="qr-hero-block">
-          <QRCode url={GOOGLE_FORM_URL} size={80} />
+          <QRCode url={GOOGLE_FORM_URL} size={100} />
         </div>
         <a class="slides-btn" href="/DataVizLunchLearnSlides.pdf" download target="_blank" rel="noopener">
           <span>Download Slides</span>
@@ -303,6 +303,22 @@
 
     <div class="dashboard-grid">
       <section class="chart-section">
+        <h2>Favorite Tools</h2>
+        <WordCloud 
+          data={favoriteToolData} 
+          color="#86C8BC"
+        />
+      </section>
+
+      <section class="chart-section">
+        <h2>Favorite Visualizations</h2>
+        <WordCloud 
+          data={favoriteVizData} 
+          color="#E8927C"
+        />
+      </section>
+
+      <section class="chart-section">
         <h2>GovEx Tool Box</h2>
         <HorizontalBarChart 
           data={toolBoxData} 
@@ -313,28 +329,12 @@
       </section>
 
       <section class="chart-section">
-        <h2>Favorite Tools</h2>
-        <WordCloud 
-          data={favoriteToolData} 
-          color="#86C8BC"
-        />
-      </section>
-
-      <section class="chart-section">
         <h2>GovEx Most Used Charts</h2>
         <HorizontalBarChart 
           data={mostUsedChartsData} 
           color="#F1C400"
           initialVisibleRows={6}
           collapsible={true}
-        />
-      </section>
-
-      <section class="chart-section">
-        <h2>Favorite Visualizations</h2>
-        <WordCloud 
-          data={favoriteVizData} 
-          color="#E8927C"
         />
       </section>
     </div>
@@ -432,8 +432,8 @@
   .hero-buttons {
     display: flex;
     flex-direction: row;
-    gap: 1.5rem;
-    align-items: flex-start;
+    gap: 1rem;
+    align-items: stretch;
     justify-content: flex-end;
   }
 
@@ -441,15 +441,16 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
-    background: none;
-    box-shadow: none;
-    border-radius: 0;
-    padding: 0;
+    gap: 0;
+    background: #fff;
+    box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
+    border-radius: 12px;
+    padding: 1rem;
+    min-width: 160px;
   }
   .qr-hero-block :global(img),
   .qr-hero-block :global(svg) {
-    height: 80px !important;
+    height: 100px !important;
     width: auto !important;
     display: block;
     margin: 0 auto;
@@ -464,22 +465,21 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 80px;
-    width: 80px;
+    min-width: 160px;
+    height: auto;
+    padding: 1.5rem 1rem;
     background: #fff;
     color: #A15A95;
     font-weight: 700;
     border-radius: 12px;
     text-decoration: none;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     border: none;
     letter-spacing: 0.5px;
     box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
     transition: background 0.2s, color 0.2s;
     text-align: center;
-    margin: 0 auto;
     white-space: normal;
-    padding: 0 6px;
     box-sizing: border-box;
   }
   .slides-btn span {
@@ -530,8 +530,8 @@
     background: #fff;
     padding: 1.5rem;
     margin: 0;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-radius: 0;
+    box-shadow: none;
     flex: 1 1 0%;
   }
   .chart-section h2 {
