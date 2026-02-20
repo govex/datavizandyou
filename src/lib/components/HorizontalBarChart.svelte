@@ -26,7 +26,7 @@
       const words = textElement.text().split(/\s+/).reverse();
       let line = [];
       let lineNumber = 0;
-      const lineHeight = 0.9; // ems
+      const lineHeight = 1.0; // ems
       const y = textElement.attr('y');
       const dy = parseFloat(textElement.attr('dy')) || 0;
       let tspan = textElement.text(null)
