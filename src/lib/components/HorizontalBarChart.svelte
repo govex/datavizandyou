@@ -120,7 +120,7 @@
     let svgRoot = d3.select(chartContainer).select('svg');
     const isInitialRender = svgRoot.empty();
     
-    let svg; // The 'g' element for chart content
+    let svg; // D3 selection of the 'g' element for chart content
 
     if (isInitialRender) {
       // Create SVG structure for initial render
@@ -181,26 +181,28 @@
         .call(wrapText, margin.left - LABEL_PADDING);
     } else {
       // Update X axis
-      const xAxisGroup = svg.select('.x-axis')
+      svg.select('.x-axis')
         .attr('transform', `translate(0,${chartHeight})`)
         .transition()
         .duration(ANIMATION_DURATION_UPDATE)
-        .call(xAxis);
-      
-      // Style X axis text after transition
-      xAxisGroup.selectAll('text')
-        .style('font-size', '12px');
+        .call(xAxis)
+        .on('end', function() {
+          // Style text after transition completes
+          d3.select(this).selectAll('text')
+            .style('font-size', '12px');
+        });
 
       // Update Y axis
-      const yAxisGroup = svg.select('.y-axis')
+      svg.select('.y-axis')
         .transition()
         .duration(ANIMATION_DURATION_UPDATE)
-        .call(yAxis);
-      
-      // Style and wrap Y axis text after transition
-      yAxisGroup.selectAll('text')
-        .style('font-size', '12px')
-        .call(wrapText, margin.left - LABEL_PADDING);
+        .call(yAxis)
+        .on('end', function() {
+          // Style and wrap text after transition completes
+          d3.select(this).selectAll('text')
+            .style('font-size', '12px')
+            .call(wrapText, margin.left - LABEL_PADDING);
+        });
     }
 
     // Data join for bars with enter/update/exit pattern
