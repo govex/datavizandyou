@@ -146,6 +146,7 @@
       console.log(`[${timestamp}] [loadData] Data loaded successfully`);
       console.log('  - ToolBox data items:', toolBoxData.length);
       console.log('  - Charts data items:', mostUsedChartsData.length);
+      // NOTE: Full data logging is for testing/debugging. Consider removing in production.
       console.log('  - ToolBox data:', JSON.stringify(toolBoxData, null, 2));
       console.log('  - Charts data:', JSON.stringify(mostUsedChartsData, null, 2));
     } catch (err) {

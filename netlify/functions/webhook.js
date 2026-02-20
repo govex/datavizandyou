@@ -1,6 +1,8 @@
 export async function handler(event, context) {
   const timestamp = new Date().toISOString();
   
+  // NOTE: These console logs are for testing/debugging purposes
+  // In production, consider filtering sensitive headers and limiting log verbosity
   console.log(`[${timestamp}] Webhook request received`);
   console.log('Request method:', event.httpMethod);
   console.log('Request headers:', JSON.stringify(event.headers, null, 2));
