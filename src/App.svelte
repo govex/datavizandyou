@@ -50,10 +50,21 @@
   }
 
   function combineCategories(data) {
-    // Rename labels to their combined category without summing values
-    return data.map(item => ({
-      label: getCombinedCategory(item.label),
-      value: item.value
+    // Group items by combined category and take the first value for each
+    const combined = new Map();
+    
+    for (const item of data) {
+      const category = getCombinedCategory(item.label);
+      
+      // Only add if we haven't seen this category yet (take first value)
+      if (!combined.has(category)) {
+        combined.set(category, item.value);
+      }
+    }
+    
+    return Array.from(combined.entries()).map(([label, value]) => ({
+      label,
+      value
     }));
   }
 
