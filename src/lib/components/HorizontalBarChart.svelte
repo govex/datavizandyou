@@ -14,7 +14,7 @@
 
   // Constants
   const LABEL_PADDING = 10; // Padding for axis labels in pixels
-  const AXIS_TEXT_SIZE = AXIS_TEXT_SIZE; // Font size for axis labels
+  const AXIS_TEXT_SIZE = '12px'; // Font size for axis labels
   
   // Animation durations (ms)
   const ANIMATION_DURATION_ENTER = 800;
@@ -118,7 +118,7 @@
     const chartHeight = calculatedHeight - margin.top - margin.bottom;
 
     // Get or create SVG elements
-    let svgRoot = d3.select(chartContainer).select('chartGroup');
+    let svgRoot = d3.select(chartContainer).select('svg');
     const isInitialRender = svgRoot.empty();
     
     let chartGroup; // D3 selection of the 'g' element for chart content
@@ -126,7 +126,7 @@
     if (isInitialRender) {
       // Create SVG structure for initial render
       svgRoot = d3.select(chartContainer)
-        .append('chartGroup')
+        .append('svg')
         .attr('width', containerWidth)
         .attr('height', calculatedHeight);
       
