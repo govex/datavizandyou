@@ -76,8 +76,9 @@
           tspan = textElement.append('tspan')
             .attr('x', -LABEL_PADDING)
             .attr('y', y)
-            .attr('dy', ++lineNumber * lineHeight + 'em')
+            .attr('dy', lineHeight + 'em')
             .text(word);
+          lineNumber++;
         }
         word = words.pop();
       }
