@@ -101,8 +101,9 @@
     };
   });
 
+  // Re-render when data changes (but skip if not mounted yet)
   $effect(() => {
-    if (mounted && data && data.length > 0) {
+    if (mounted && data.length > 0) {
       renderCloud();
     }
   });

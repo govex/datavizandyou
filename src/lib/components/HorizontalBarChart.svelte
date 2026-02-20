@@ -19,14 +19,13 @@
   let isExpanded = $state(false);
   
   // Determine which data to show based on expand state
-  let displayData = $derived(() => {
-    if (!collapsible || isExpanded || data.length <= initialVisibleRows) {
-      return data;
-    }
-    return data.slice(0, initialVisibleRows);
-  });
+  let displayData = $derived(
+    !collapsible || isExpanded || data.length <= initialVisibleRows 
+      ? data 
+      : data.slice(0, initialVisibleRows)
+  );
   
-  let hasMoreRows = $derived(() => collapsible && data.length > initialVisibleRows);
+  let hasMoreRows = $derived(collapsible && data.length > initialVisibleRows);
 
   // Constants
   const LABEL_PADDING = 10; // Padding for axis labels in pixels
@@ -122,7 +121,7 @@
   }
 
   function renderChart() {
-    if (!chartContainer || !displayData || displayData.length === 0) return;
+    if (!chartContainer || displayData.length === 0) return;
 
     // Sort data in descending order by value (highest values on top)
     const sortedData = [...displayData].sort((a, b) => b.value - a.value);
@@ -330,7 +329,7 @@
   });
 
   $effect(() => {
-    if (mounted && displayData && displayData.length > 0) {
+    if (mounted && displayData.length > 0) {
       renderChart();
     }
   });
