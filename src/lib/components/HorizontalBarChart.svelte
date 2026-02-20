@@ -30,20 +30,24 @@
       // First pass: determine how many lines we need
       let line = [];
       let lineCount = 1;
-      let wordsCopy = [...words].reverse();
       let tempTspan = textElement.append('tspan')
         .style('visibility', 'hidden');
       
-      for (let word of wordsCopy) {
-        line.push(word);
-        tempTspan.text(line.join(' '));
-        if (tempTspan.node().getComputedTextLength() > width) {
-          line.pop();
-          lineCount++;
-          line = [word];
+      try {
+        // Process words in the same order as the second pass
+        for (let i = words.length - 1; i >= 0; i--) {
+          const word = words[i];
+          line.push(word);
+          tempTspan.text(line.join(' '));
+          if (tempTspan.node().getComputedTextLength() > width) {
+            line.pop();
+            lineCount++;
+            line = [word];
+          }
         }
+      } finally {
+        tempTspan.remove();
       }
-      tempTspan.remove();
       
       // Calculate dy offset to center the text based on number of lines
       // For multi-line text, shift up by half the total height to center
