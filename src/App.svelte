@@ -8,9 +8,12 @@
   }
 
   import HorizontalBarChart from './lib/components/HorizontalBarChart.svelte';
+  import WordCloud from './lib/components/WordCloud.svelte';
   import QRCode from './lib/components/QRCode.svelte';
   let toolBoxData = $state([]);
   let mostUsedChartsData = $state([]);
+  let favoriteToolData = $state([]);
+  let favoriteVizData = $state([]);
   let loading = $state(true);
   let isRefreshing = $state(false);
   let error = $state(null);
@@ -20,6 +23,9 @@
   // To get CSV URLs: File > Share > Publish to web > Choose sheet > CSV format
   const TOOLBOX_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTgjloHyyyB4tiRtcQUUSVsfpVunRlFqvm9-aFU042UAQcbF06SPGS1ZcCeEl4FHr4lMPQKqOQDNz3a/pub?gid=458688954&single=true&output=csv';
   const CHARTS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTgjloHyyyB4tiRtcQUUSVsfpVunRlFqvm9-aFU042UAQcbF06SPGS1ZcCeEl4FHr4lMPQKqOQDNz3a/pub?gid=772083968&single=true&output=csv';
+  // Word cloud CSV URLs - REPLACE WITH YOUR PUBLISHED SHEET URLS
+  const FAVORITE_TOOL_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTgjloHyyyB4tiRtcQUUSVsfpVunRlFqvm9-aFU042UAQcbF06SPGS1ZcCeEl4FHr4lMPQKqOQDNz3a/pub?gid=0&single=true&output=csv'; // PLACEHOLDER - Update with FavoriteTool sheet
+  const FAVORITE_VIZ_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTgjloHyyyB4tiRtcQUUSVsfpVunRlFqvm9-aFU042UAQcbF06SPGS1ZcCeEl4FHr4lMPQKqOQDNz3a/pub?gid=0&single=true&output=csv'; // PLACEHOLDER - Update with FavoriteViz sheet
   // Replace with your Google Form URL
   const GOOGLE_FORM_URL = 'https://forms.gle/7PAb7GmDP91HpfK3A';
   
@@ -165,18 +171,28 @@
     }
     error = null;
     try {
-      const [toolbox, charts] = await Promise.all([
+      const [toolbox, charts, favTool, favViz] = await Promise.all([
         fetchCSVData(TOOLBOX_CSV),
-        fetchCSVData(CHARTS_CSV)
+        fetchCSVData(CHARTS_CSV),
+        fetchCSVData(FAVORITE_TOOL_CSV).catch(() => []),
+        fetchCSVData(FAVORITE_VIZ_CSV).catch(() => [])
       ]);
       const newToolBoxData = combineCategories(toolbox);
       const newChartsData = charts;
+      const newFavoriteToolData = favTool;
+      const newFavoriteVizData = favViz;
+      
       // Check if data has actually changed
       const toolboxChanged = hasDataChanged(toolBoxData, newToolBoxData);
       const chartsChanged = hasDataChanged(mostUsedChartsData, newChartsData);
-      if (toolboxChanged || chartsChanged) {
+      const favToolChanged = hasDataChanged(favoriteToolData, newFavoriteToolData);
+      const favVizChanged = hasDataChanged(favoriteVizData, newFavoriteVizData);
+      
+      if (toolboxChanged || chartsChanged || favToolChanged || favVizChanged) {
         toolBoxData = newToolBoxData;
         mostUsedChartsData = newChartsData;
+        favoriteToolData = newFavoriteToolData;
+        favoriteVizData = newFavoriteVizData;
         lastUpdate = new Date();
       }
     } catch (err) {
@@ -194,6 +210,16 @@
         { label: 'Line Chart', value: 25 },
         { label: 'Pie Chart', value: 20 },
         { label: 'Scatter Plot', value: 15 }
+      ];
+      favoriteToolData = [
+        { label: 'tableau', value: 8 },
+        { label: 'python', value: 6 },
+        { label: 'excel', value: 5 }
+      ];
+      favoriteVizData = [
+        { label: 'maps', value: 7 },
+        { label: 'scatterplot', value: 5 },
+        { label: 'bar', value: 4 }
       ];
       lastUpdate = new Date();
     } finally {
@@ -244,7 +270,7 @@
       </div>
       <div class="hero-buttons">
         <div class="qr-hero-block">
-          <QRCode url={GOOGLE_FORM_URL} size={110} />
+          <QRCode url={GOOGLE_FORM_URL} size={80} />
         </div>
         <a class="slides-btn" href="/DataVizLunchLearnSlides.pdf" download target="_blank" rel="noopener">
           <span>Download Slides</span>
@@ -275,12 +301,22 @@
       {/if}
     </div>
 
-    <div class="charts-row">
+    <div class="dashboard-grid">
       <section class="chart-section">
         <h2>GovEx Tool Box</h2>
         <HorizontalBarChart 
           data={toolBoxData} 
           color="#418FDE"
+          initialVisibleRows={6}
+          collapsible={true}
+        />
+      </section>
+
+      <section class="chart-section">
+        <h2>Favorite Tools</h2>
+        <WordCloud 
+          data={favoriteToolData} 
+          color="#86C8BC"
         />
       </section>
 
@@ -289,6 +325,16 @@
         <HorizontalBarChart 
           data={mostUsedChartsData} 
           color="#F1C400"
+          initialVisibleRows={6}
+          collapsible={true}
+        />
+      </section>
+
+      <section class="chart-section">
+        <h2>Favorite Visualizations</h2>
+        <WordCloud 
+          data={favoriteVizData} 
+          color="#E8927C"
         />
       </section>
     </div>
@@ -319,27 +365,46 @@
     padding: 0;
   }
 
-
   .hero {
     background: linear-gradient(30deg, #002D72 0%, #A15A95 100%);
-    padding: 50px;
+    padding: 20px;
     margin: 0;
     border-radius: 0;
     color: #fff;
-    width: calc(100vw - 100px);
-    max-width: calc(100vw - 100px);
+    width: calc(100vw - 40px);
+    max-width: calc(100vw - 40px);
     position: relative;
+    background-image: 
+      url('/wave.svg'),
+      linear-gradient(30deg, #002D72 0%, #A15A95 100%);
+    background-size: cover, auto;
+    background-position: center, center;
+    background-repeat: no-repeat, no-repeat;
+    background-blend-mode: overlay, normal;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('/wave.svg') center/cover no-repeat;
+    opacity: 0.15;
+    pointer-events: none;
   }
   .hero-content {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 2rem;
+    gap: 1.5rem;
     width: 100%;
     max-width: 100vw;
     box-sizing: border-box;
     overflow-x: auto;
+    position: relative;
+    z-index: 1;
   }
   .hero-headlines {
     flex: 1 1 0%;
@@ -349,16 +414,16 @@
   }
   .hero-headlines h1 {
     font-family: 'Work Sans', sans-serif;
-    font-size: 2.8rem;
+    font-size: 2rem;
     font-weight: 900;
-    margin: 0 0 0.5rem 0;
+    margin: 0 0 0.25rem 0;
     margin-top: 0;
     color: #fff;
     letter-spacing: -1px;
   }
   .hero-headlines p {
-    font-size: 1.15rem;
-    margin: 0 0 1rem 0;
+    font-size: 0.95rem;
+    margin: 0;
     color: #fff;
     font-weight: 400;
     letter-spacing: 0.5px;
@@ -384,7 +449,7 @@
   }
   .qr-hero-block :global(img),
   .qr-hero-block :global(svg) {
-    height: 110px !important;
+    height: 80px !important;
     width: auto !important;
     display: block;
     margin: 0 auto;
@@ -392,13 +457,6 @@
   }
   .qr-hero-block :global(img):hover,
   .qr-hero-block :global(svg):hover {
-    /* height: 110px !important;
-    width: auto !important;
-    filter: none !important;
-    opacity: 1 !important;
-    background: none !important;
-    box-shadow: none !important;
-    cursor: default !important; */
     transition: none !important;
   }
 
@@ -406,14 +464,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 110px;
-    width: 110px;
+    height: 80px;
+    width: 80px;
     background: #fff;
     color: #A15A95;
     font-weight: 700;
-    border-radius: 16px;
+    border-radius: 12px;
     text-decoration: none;
-    font-size: 1.08rem;
+    font-size: 0.9rem;
     border: none;
     letter-spacing: 0.5px;
     box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
@@ -421,7 +479,7 @@
     text-align: center;
     margin: 0 auto;
     white-space: normal;
-    padding: 0 8px;
+    padding: 0 6px;
     box-sizing: border-box;
   }
   .slides-btn span {
@@ -445,50 +503,45 @@
     position: static;
     background: none;
     color: #002D72;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
     font-weight: 600;
     padding: 0.2rem 0.5rem;
     border: none;
-    margin: 1.5rem 0 0 0;
+    margin: 1rem 0 0 0;
     box-shadow: none;
     opacity: 0.7;
     text-align: right;
     width: 100%;
-    max-width: 1200px;
+    max-width: 1400px;
   }
 
 
-  .charts-row {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    margin-top: 2rem;
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+    padding: 0 1rem;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
   }
   .chart-section {
     background: #fff;
     padding: 1.5rem;
     margin: 0;
-    border-radius: 0;
-    box-shadow: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     flex: 1 1 0%;
   }
   .chart-section h2 {
     margin: 0 0 1rem 0;
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     color: #002D72;
     font-family: 'Work Sans', sans-serif;
     font-weight: 700;
     letter-spacing: -0.5px;
   }
-
-  /* .qr-section {
-    text-align: center;
-  }
-
-  .qr-section p {
-    color: #666;
-    margin-bottom: 1rem;
-  } */
 
   footer {
     text-align: center;
@@ -499,19 +552,21 @@
 
 
   @media (min-width: 1200px) {
-    .charts-row {
-      flex-direction: row;
-      gap: 2.5rem;
+    .dashboard-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      padding: 0 2rem;
     }
     .chart-section {
-      padding: 2.5rem 2rem;
+      padding: 2rem 1.5rem;
+    }
+    .hero {
+      padding: 20px 50px;
+      width: calc(100vw - 100px);
+      max-width: calc(100vw - 100px);
     }
     .hero-content {
-      gap: 4rem;
-    }
-    .update-info {
-      top: 90px;
-      right: 80px;
+      gap: 3rem;
     }
   }
 </style>

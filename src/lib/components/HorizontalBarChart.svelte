@@ -6,7 +6,9 @@
     data = [], 
     color = '#4A90E2', // main color for max bar
     barHeight = 50,
-    minHeight = 200
+    minHeight = 200,
+    initialVisibleRows = 10,
+    collapsible = false
   } = $props();
 
   // Find the max value for coloring (runes mode)
@@ -14,6 +16,17 @@
 
   let chartContainer;
   let mounted = false;
+  let isExpanded = $state(false);
+  
+  // Determine which data to show based on expand state
+  let displayData = $derived(() => {
+    if (!collapsible || isExpanded || data.length <= initialVisibleRows) {
+      return data;
+    }
+    return data.slice(0, initialVisibleRows);
+  });
+  
+  let hasMoreRows = $derived(() => collapsible && data.length > initialVisibleRows);
 
   // Constants
   const LABEL_PADDING = 10; // Padding for axis labels in pixels
@@ -25,6 +38,10 @@
   const ANIMATION_DURATION_UPDATE = 600;
   const ANIMATION_DURATION_EXIT = 400;
   const ANIMATION_DELAY_LABEL_ENTER = 200; // Delay before labels fade in
+  
+  function toggleExpand() {
+    isExpanded = !isExpanded;
+  }
 
   /**
    * Wraps text within a specified width by splitting into multiple tspan elements
@@ -105,10 +122,10 @@
   }
 
   function renderChart() {
-    if (!chartContainer || !data || data.length === 0) return;
+    if (!chartContainer || !displayData || displayData.length === 0) return;
 
     // Sort data in descending order by value (highest values on top)
-    const sortedData = [...data].sort((a, b) => b.value - a.value);
+    const sortedData = [...displayData].sort((a, b) => b.value - a.value);
 
     const containerWidth = chartContainer.clientWidth;
     
@@ -313,15 +330,27 @@
   });
 
   $effect(() => {
-    if (mounted && data && data.length > 0) {
+    if (mounted && displayData && displayData.length > 0) {
       renderChart();
     }
   });
 </script>
 
-<div class="chart-container" bind:this={chartContainer}></div>
+<div class="chart-wrapper">
+  <div class="chart-container" bind:this={chartContainer}></div>
+  {#if hasMoreRows}
+    <button class="expand-btn" onclick={toggleExpand}>
+      {isExpanded ? 'Show Less' : `Show More (${data.length - initialVisibleRows} more)`}
+    </button>
+  {/if}
+</div>
 
 <style>
+  .chart-wrapper {
+    width: 100%;
+    position: relative;
+  }
+  
   .chart-container {
     width: 100%;
     min-height: 200px;
@@ -340,5 +369,26 @@
 
   :global(.bar:hover) {
     opacity: 0.8;
+  }
+  
+  .expand-btn {
+    display: block;
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    color: #002D72;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .expand-btn:hover {
+    background: #e8e8e8;
+    border-color: #d0d0d0;
   }
 </style>
