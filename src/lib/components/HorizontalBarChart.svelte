@@ -20,6 +20,7 @@
   const ANIMATION_DURATION_ENTER = 800;
   const ANIMATION_DURATION_UPDATE = 600;
   const ANIMATION_DURATION_EXIT = 400;
+  const ANIMATION_DELAY_LABEL_ENTER = 200; // Delay before labels fade in
 
   /**
    * Wraps text within a specified width by splitting into multiple tspan elements
@@ -255,7 +256,7 @@
       .text(d => d.value)
       .transition()
       .duration(ANIMATION_DURATION_ENTER)
-      .delay(200)
+      .delay(ANIMATION_DELAY_LABEL_ENTER)
       .style('opacity', 1);
 
     // Update existing labels
