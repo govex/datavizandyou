@@ -12,12 +12,18 @@
   let chartContainer;
   let mounted = $state(false);
 
-  // Text wrapping function for y-axis labels
+  // Constants
+  const LABEL_PADDING = 10; // Padding for axis labels in pixels
+
+  /**
+   * Wraps text within a specified width by splitting into multiple tspan elements
+   * @param {d3.Selection} text - D3 selection of text elements to wrap
+   * @param {number} width - Maximum width in pixels for the text
+   */
   function wrapText(text, width) {
     text.each(function() {
       const textElement = d3.select(this);
       const words = textElement.text().split(/\s+/).reverse();
-      let word;
       let line = [];
       let lineNumber = 0;
       const lineHeight = 1.1; // ems
@@ -25,11 +31,12 @@
       const dy = parseFloat(textElement.attr('dy')) || 0;
       let tspan = textElement.text(null)
         .append('tspan')
-        .attr('x', -10)
+        .attr('x', -LABEL_PADDING)
         .attr('y', y)
         .attr('dy', dy + 'em');
       
-      while (word = words.pop()) {
+      let word = words.pop();
+      while (word !== undefined) {
         line.push(word);
         tspan.text(line.join(' '));
         if (tspan.node().getComputedTextLength() > width) {
@@ -37,11 +44,12 @@
           tspan.text(line.join(' '));
           line = [word];
           tspan = textElement.append('tspan')
-            .attr('x', -10)
+            .attr('x', -LABEL_PADDING)
             .attr('y', y)
             .attr('dy', ++lineNumber * lineHeight + dy + 'em')
             .text(word);
         }
+        word = words.pop();
       }
     });
   }
@@ -109,7 +117,7 @@
       .call(yAxis)
       .selectAll('text')
       .style('font-size', '12px')
-      .call(wrapText, margin.left - 10); // Wrap text to fit within left margin minus 10px padding
+      .call(wrapText, margin.left - LABEL_PADDING); // Wrap text to fit within left margin
 
     // Add bars
     svg.selectAll('.bar')
