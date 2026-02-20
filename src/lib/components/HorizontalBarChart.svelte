@@ -245,7 +245,7 @@
       .data(sortedData, d => d.label);
 
     // Enter new labels
-    labels.enter()
+    const enteringLabels = labels.enter()
       .append('text')
       .attr('class', 'label')
       .attr('x', d => xScale(d.value) + LABEL_X_OFFSET)
@@ -253,8 +253,11 @@
       .attr('dy', '.35em')
       .style('font-size', AXIS_TEXT_SIZE)
       .style('fill', '#333')
+      .text(d => d.value);
+    
+    // Set initial opacity and transition to visible
+    enteringLabels
       .style('opacity', 0)
-      .text(d => d.value)
       .transition()
       .duration(ANIMATION_DURATION_ENTER)
       .delay(ANIMATION_DELAY_LABEL_ENTER)
