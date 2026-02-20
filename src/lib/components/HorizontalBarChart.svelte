@@ -40,7 +40,7 @@
     // Determine x scale domain
     // Default to [0,5] if max value is less than 5
     const maxValue = d3.max(sortedData, d => d.value);
-    const xDomain = maxValue < 5 ? [0, 5] : [0, maxValue * 1.1];
+    const xDomain = maxValue < 5 ? [0, 5] : [0, maxValue];
 
     // Scales
     const xScale = d3.scaleLinear()
