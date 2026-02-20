@@ -54,7 +54,7 @@
       
       // Calculate dy offset to position the text based on number of lines
       // Shifts the first line up to accommodate multiple lines below it
-      const dyOffset = -(lineCount - 1) * lineHeight;
+      const dyOffset = -(lineCount - 1) * lineHeight / 2;
       
       // Second pass: actually create the wrapped text with proper centering
       line = [];
@@ -76,7 +76,7 @@
           tspan = textElement.append('tspan')
             .attr('x', -LABEL_PADDING)
             .attr('y', y)
-            .attr('dy', (++lineNumber * lineHeight + dyOffset) + 'em')
+            .attr('dy', ++lineNumber * lineHeight + 'em')
             .text(word);
         }
         word = words.pop();
