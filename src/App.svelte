@@ -10,10 +10,10 @@
 
   // CSV data sources - REPLACE THESE WITH YOUR ACTUAL URLS
   // To get CSV URLs: File > Share > Publish to web > Choose sheet > CSV format
-  const TOOLBOX_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6FxrKCNJfXwVWxJ8-H3Q1h_7jXjQ9jQ5Q/pub?gid=0&single=true&output=csv';
-  const CHARTS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6FxrKCNJfXwVWxJ8-H3Q1h_7jXjQ9jQ5Q/pub?gid=1&single=true&output=csv';
+  const TOOLBOX_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTgjloHyyyB4tiRtcQUUSVsfpVunRlFqvm9-aFU042UAQcbF06SPGS1ZcCeEl4FHr4lMPQKqOQDNz3a/pub?gid=458688954&single=true&output=csv';
+  const CHARTS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTgjloHyyyB4tiRtcQUUSVsfpVunRlFqvm9-aFU042UAQcbF06SPGS1ZcCeEl4FHr4lMPQKqOQDNz3a/pub?gid=772083968&single=true&output=csv';
   // Replace with your Google Form URL
-  const GOOGLE_FORM_URL = 'https://forms.gle/yourformid';
+  const GOOGLE_FORM_URL = 'https://forms.gle/7PAb7GmDP91HpfK3A';
 
   async function fetchCSVData(url) {
     try {
