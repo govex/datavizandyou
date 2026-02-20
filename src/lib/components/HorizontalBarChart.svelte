@@ -116,26 +116,29 @@
     const calculatedHeight = Math.max(minHeight, (sortedData.length * barHeight) + margin.top + margin.bottom);
     const chartHeight = calculatedHeight - margin.top - margin.bottom;
 
-    // Check if SVG already exists
-    let svg = d3.select(chartContainer).select('svg');
-    const isInitialRender = svg.empty();
+    // Get or create SVG elements
+    let svgRoot = d3.select(chartContainer).select('svg');
+    const isInitialRender = svgRoot.empty();
+    
+    let svg; // The 'g' element for chart content
 
     if (isInitialRender) {
-      // Create SVG for initial render
-      svg = d3.select(chartContainer)
+      // Create SVG structure for initial render
+      svgRoot = d3.select(chartContainer)
         .append('svg')
-        .attr('width', containerWidth)
-        .attr('height', calculatedHeight)
-        .append('g')
-        .attr('transform', `translate(${margin.left},${margin.top})`);
-    } else {
-      // Update SVG dimensions
-      d3.select(chartContainer).select('svg')
         .attr('width', containerWidth)
         .attr('height', calculatedHeight);
       
-      svg = d3.select(chartContainer).select('svg g');
-      svg.attr('transform', `translate(${margin.left},${margin.top})`);
+      svg = svgRoot.append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+    } else {
+      // Update existing SVG dimensions
+      svgRoot
+        .attr('width', containerWidth)
+        .attr('height', calculatedHeight);
+      
+      svg = svgRoot.select('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
     }
 
     // Determine x scale domain
@@ -177,24 +180,25 @@
         .style('font-size', '12px')
         .call(wrapText, margin.left - LABEL_PADDING);
     } else {
-      // Update axes
-      svg.select('.x-axis')
+      // Update X axis
+      const xAxisGroup = svg.select('.x-axis')
         .attr('transform', `translate(0,${chartHeight})`)
         .transition()
         .duration(ANIMATION_DURATION_UPDATE)
         .call(xAxis);
       
-      svg.select('.x-axis')
-        .selectAll('text')
+      // Style X axis text after transition
+      xAxisGroup.selectAll('text')
         .style('font-size', '12px');
 
-      svg.select('.y-axis')
+      // Update Y axis
+      const yAxisGroup = svg.select('.y-axis')
         .transition()
         .duration(ANIMATION_DURATION_UPDATE)
         .call(yAxis);
       
-      svg.select('.y-axis')
-        .selectAll('text')
+      // Style and wrap Y axis text after transition
+      yAxisGroup.selectAll('text')
         .style('font-size', '12px')
         .call(wrapText, margin.left - LABEL_PADDING);
     }
