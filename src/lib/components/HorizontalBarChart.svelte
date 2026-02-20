@@ -24,16 +24,39 @@
     text.each(function() {
       const textElement = d3.select(this);
       const words = textElement.text().split(/\s+/).reverse();
-      let line = [];
-      let lineNumber = 0;
-      const lineHeight = 1.0; // ems
       const y = textElement.attr('y');
-      const dy = parseFloat(textElement.attr('dy')) || 0;
+      const lineHeight = 1.0; // ems
+      
+      // First pass: determine how many lines we need
+      let line = [];
+      let lineCount = 1;
+      let wordsCopy = [...words].reverse();
+      let tempTspan = textElement.append('tspan')
+        .style('visibility', 'hidden');
+      
+      for (let word of wordsCopy) {
+        line.push(word);
+        tempTspan.text(line.join(' '));
+        if (tempTspan.node().getComputedTextLength() > width) {
+          line.pop();
+          lineCount++;
+          line = [word];
+        }
+      }
+      tempTspan.remove();
+      
+      // Calculate dy offset to center the text based on number of lines
+      // For multi-line text, shift up by half the total height to center
+      const dyOffset = -(lineCount - 1) * lineHeight / 2;
+      
+      // Second pass: actually create the wrapped text with proper centering
+      line = [];
+      let lineNumber = 0;
       let tspan = textElement.text(null)
         .append('tspan')
         .attr('x', -LABEL_PADDING)
         .attr('y', y)
-        .attr('dy', dy + 'em');
+        .attr('dy', dyOffset + 'em');
       
       let word = words.pop();
       while (word !== undefined) {
@@ -46,7 +69,7 @@
           tspan = textElement.append('tspan')
             .attr('x', -LABEL_PADDING)
             .attr('y', y)
-            .attr('dy', ++lineNumber * lineHeight + dy + 'em')
+            .attr('dy', (++lineNumber * lineHeight + dyOffset) + 'em')
             .text(word);
         }
         word = words.pop();
