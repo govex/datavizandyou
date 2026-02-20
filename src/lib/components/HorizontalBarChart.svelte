@@ -14,6 +14,7 @@
 
   // Constants
   const LABEL_PADDING = 10; // Padding for axis labels in pixels
+  const AXIS_TEXT_SIZE = AXIS_TEXT_SIZE; // Font size for axis labels
   
   // Animation durations (ms)
   const ANIMATION_DURATION_ENTER = 800;
@@ -117,19 +118,19 @@
     const chartHeight = calculatedHeight - margin.top - margin.bottom;
 
     // Get or create SVG elements
-    let svgRoot = d3.select(chartContainer).select('svg');
+    let svgRoot = d3.select(chartContainer).select('chartGroup');
     const isInitialRender = svgRoot.empty();
     
-    let svg; // D3 selection of the 'g' element for chart content
+    let chartGroup; // D3 selection of the 'g' element for chart content
 
     if (isInitialRender) {
       // Create SVG structure for initial render
       svgRoot = d3.select(chartContainer)
-        .append('svg')
+        .append('chartGroup')
         .attr('width', containerWidth)
         .attr('height', calculatedHeight);
       
-      svg = svgRoot.append('g')
+      chartGroup = svgRoot.append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
     } else {
       // Update existing SVG dimensions
@@ -137,7 +138,7 @@
         .attr('width', containerWidth)
         .attr('height', calculatedHeight);
       
-      svg = svgRoot.select('g')
+      chartGroup = svgRoot.select('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
     }
 
@@ -165,23 +166,23 @@
 
     if (isInitialRender) {
       // Add X axis
-      svg.append('g')
+      chartGroup.append('g')
         .attr('class', 'x-axis')
         .attr('transform', `translate(0,${chartHeight})`)
         .call(xAxis)
         .selectAll('text')
-        .style('font-size', '12px');
+        .style('font-size', AXIS_TEXT_SIZE);
 
       // Add Y axis
-      svg.append('g')
+      chartGroup.append('g')
         .attr('class', 'y-axis')
         .call(yAxis)
         .selectAll('text')
-        .style('font-size', '12px')
+        .style('font-size', AXIS_TEXT_SIZE)
         .call(wrapText, margin.left - LABEL_PADDING);
     } else {
       // Update X axis
-      svg.select('.x-axis')
+      chartGroup.select('.x-axis')
         .attr('transform', `translate(0,${chartHeight})`)
         .transition()
         .duration(ANIMATION_DURATION_UPDATE)
@@ -189,24 +190,24 @@
         .on('end', function() {
           // Style text after transition completes
           d3.select(this).selectAll('text')
-            .style('font-size', '12px');
+            .style('font-size', AXIS_TEXT_SIZE);
         });
 
       // Update Y axis
-      svg.select('.y-axis')
+      chartGroup.select('.y-axis')
         .transition()
         .duration(ANIMATION_DURATION_UPDATE)
         .call(yAxis)
         .on('end', function() {
           // Style and wrap text after transition completes
           d3.select(this).selectAll('text')
-            .style('font-size', '12px')
+            .style('font-size', AXIS_TEXT_SIZE)
             .call(wrapText, margin.left - LABEL_PADDING);
         });
     }
 
     // Data join for bars with enter/update/exit pattern
-    const bars = svg.selectAll('.bar')
+    const bars = chartGroup.selectAll('.bar')
       .data(sortedData, d => d.label);
 
     // Enter new bars
@@ -238,7 +239,7 @@
       .remove();
 
     // Data join for labels
-    const labels = svg.selectAll('.label')
+    const labels = chartGroup.selectAll('.label')
       .data(sortedData, d => d.label);
 
     // Enter new labels
@@ -248,7 +249,7 @@
       .attr('x', d => xScale(d.value) + 5)
       .attr('y', d => yScale(d.label) + yScale.bandwidth() / 2)
       .attr('dy', '.35em')
-      .style('font-size', '12px')
+      .style('font-size', AXIS_TEXT_SIZE)
       .style('fill', '#333')
       .style('opacity', 0)
       .text(d => d.value)
