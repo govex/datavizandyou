@@ -50,21 +50,10 @@
   }
 
   function combineCategories(data) {
-    const combined = new Map();
-    
-    for (const item of data) {
-      const category = getCombinedCategory(item.label);
-      
-      if (combined.has(category)) {
-        combined.set(category, combined.get(category) + item.value);
-      } else {
-        combined.set(category, item.value);
-      }
-    }
-    
-    return Array.from(combined.entries()).map(([label, value]) => ({
-      label,
-      value
+    // Rename labels to their combined category without summing values
+    return data.map(item => ({
+      label: getCombinedCategory(item.label),
+      value: item.value
     }));
   }
 
@@ -135,7 +124,7 @@
       ]);
       
       toolBoxData = combineCategories(toolbox);
-      mostUsedChartsData = combineCategories(charts);
+      mostUsedChartsData = charts;
     } catch (err) {
       error = err.message;
       // Use sample data for demonstration if fetch fails
