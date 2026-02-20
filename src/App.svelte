@@ -1,10 +1,17 @@
 <script>
+  // Google Fonts: Work Sans only
+  if (typeof window !== 'undefined') {
+    const font1 = document.createElement('link');
+    font1.rel = 'stylesheet';
+    font1.href = 'https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700;900&display=swap';
+    document.head.appendChild(font1);
+  }
+
   import HorizontalBarChart from './lib/components/HorizontalBarChart.svelte';
   import QRCode from './lib/components/QRCode.svelte';
-  import { onMount, onDestroy } from 'svelte';
-
-  let toolBoxData = $state([]);
-  let mostUsedChartsData = $state([]);
+  import { onMount } from 'svelte';
+  let toolBoxData = [];
+  let mostUsedChartsData = [];
   let loading = $state(true);
   let isRefreshing = $state(false);
   let error = $state(null);
@@ -149,6 +156,7 @@
     return false;
   }
 
+
   async function loadData(isBackgroundRefresh = false) {
     // Only set loading state on initial load, not on background refresh
     if (!isBackgroundRefresh) {
@@ -157,20 +165,16 @@
       isRefreshing = true;
     }
     error = null;
-    
     try {
       const [toolbox, charts] = await Promise.all([
         fetchCSVData(TOOLBOX_CSV),
         fetchCSVData(CHARTS_CSV)
       ]);
-      
       const newToolBoxData = combineCategories(toolbox);
       const newChartsData = charts;
-      
       // Check if data has actually changed
       const toolboxChanged = hasDataChanged(toolBoxData, newToolBoxData);
       const chartsChanged = hasDataChanged(mostUsedChartsData, newChartsData);
-      
       if (toolboxChanged || chartsChanged) {
         toolBoxData = newToolBoxData;
         mostUsedChartsData = newChartsData;
@@ -178,7 +182,6 @@
       }
     } catch (err) {
       console.error('Error loading data:', err.message);
-      
       error = err.message;
       // Use sample data for demonstration if fetch fails
       toolBoxData = [
@@ -200,37 +203,43 @@
     }
   }
 
+
   let refreshInterval;
 
-  onMount(() => {
+  $effect(() => {
     loadData(false); // Initial load, not a background refresh
-    
     // Set up automatic polling for data updates
     refreshInterval = setInterval(() => {
       loadData(true); // Background refresh
     }, REFRESH_INTERVAL);
-    
     // Listen for webhook updates (for future WebSocket implementation)
     if (typeof window !== 'undefined') {
       window.addEventListener('data-update', (event) => {
         loadData(true); // Background refresh for webhook updates too
       });
     }
-  });
-  
-  onDestroy(() => {
-    // Clean up the interval when component is destroyed
-    if (refreshInterval) {
-      clearInterval(refreshInterval);
-    }
+    // No onDestroy needed
   });
 </script>
 
 <main>
-  <header>
-    <h1>GovEx Data Visualization</h1>
-    <p>Real-time insights from our data collection</p>
-  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-headlines">
+        <h1>Data Viz & You</h1>
+        <p>From the GovEx Data Visualization Lunch and Learn</p>
+      </div>
+      <div class="hero-buttons">
+        <div class="qr-hero-block">
+          <QRCode url={GOOGLE_FORM_URL} size={110} />
+        </div>
+        <a class="slides-btn" href="/DataVizLunchLearnSlides.pdf" download target="_blank" rel="noopener">
+          <span>Download Slides</span>
+        </a>
+      </div>
+    </div>
+  </section>
 
   {#if loading}
     <div class="loading">
@@ -244,36 +253,33 @@
     </div>
   {/if}
 
+
   {#if !loading}
-    {#if lastUpdate}
-      <div class="update-info" class:refreshing={isRefreshing}>
-        <p>
+    <div class="update-info" class:refreshing={isRefreshing}>
+      {#if lastUpdate}
+        <span>
           Last updated: {lastUpdate.toLocaleTimeString()} • Auto-refreshing every {REFRESH_INTERVAL / 1000}s
-        </p>
-      </div>
-    {/if}
-    
-    <section class="chart-section">
-      <h2>GovEx Tool Box</h2>
-      <HorizontalBarChart 
-        data={toolBoxData} 
-        color="#4A90E2"
-      />
-    </section>
+        </span>
+      {/if}
+    </div>
 
-    <section class="chart-section">
-      <h2>GovEx Most Used Charts</h2>
-      <HorizontalBarChart 
-        data={mostUsedChartsData} 
-        color="#50C878"
-      />
-    </section>
+    <div class="charts-row">
+      <section class="chart-section">
+        <h2>GovEx Tool Box</h2>
+        <HorizontalBarChart 
+          data={toolBoxData} 
+          color="#418FDE"
+        />
+      </section>
 
-    <section class="qr-section">
-      <h2>Share Your Feedback</h2>
-      <p>Scan the QR code to fill out our survey</p>
-      <QRCode url={GOOGLE_FORM_URL} size={200} />
-    </section>
+      <section class="chart-section">
+        <h2>GovEx Most Used Charts</h2>
+        <HorizontalBarChart 
+          data={mostUsedChartsData} 
+          color="#F1C400"
+        />
+      </section>
+    </div>
   {/if}
 
   <footer>
@@ -283,46 +289,137 @@
 
 <style>
   /* Mobile-first design */
+
+  :global(html) {
+    font-size: 16px;
+  }
   :global(body) {
     margin: 0;
     padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    background-color: #f5f5f5;
+    font-family: 'Work Sans', sans-serif;
+    background: #fff;
+    color: #000;
+    overflow-x: hidden;
   }
 
   main {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1rem;
-  }
-
-  header {
-    text-align: center;
-    padding: 2rem 1rem;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-radius: 8px;
-    margin-bottom: 2rem;
-  }
-
-  header h1 {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.75rem;
-    font-weight: 700;
-  }
-
-  header p {
     margin: 0;
-    font-size: 1rem;
-    opacity: 0.9;
+    padding: 0;
   }
 
-  .loading, .error {
+
+  .hero {
+    background: linear-gradient(30deg, #002D72 0%, #A15A95 100%);
+    padding: 50px;
+    margin: 0;
+    border-radius: 0;
+    color: #fff;
+    width: calc(100vw - 100px);
+    max-width: calc(100vw - 100px);
+    position: relative;
+  }
+  .hero-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+    overflow-x: auto;
+  }
+  .hero-headlines {
+    flex: 1 1 0%;
+    align-self: flex-start;
+    text-align: left;
+    margin: 0;
+  }
+  .hero-headlines h1 {
+    font-family: 'Work Sans', sans-serif;
+    font-size: 2.8rem;
+    font-weight: 900;
+    margin: 0 0 0.5rem 0;
+    margin-top: 0;
+    color: #fff;
+    letter-spacing: -1px;
+  }
+  .hero-headlines p {
+    font-size: 1.15rem;
+    margin: 0 0 1rem 0;
+    color: #fff;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    opacity: 0.95;
+  }
+  .hero-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 1.5rem;
+    align-items: flex-start;
+    justify-content: flex-end;
+  }
+
+  .qr-hero-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 0;
+  }
+  .qr-hero-block :global(img),
+  .qr-hero-block :global(svg) {
+    height: 110px !important;
+    width: auto !important;
+    display: block;
+    margin: 0 auto;
+    transition: none !important;
+  }
+  .qr-hero-block :global(img):hover,
+  .qr-hero-block :global(svg):hover {
+    /* height: 110px !important;
+    width: auto !important;
+    filter: none !important;
+    opacity: 1 !important;
+    background: none !important;
+    box-shadow: none !important;
+    cursor: default !important; */
+    transition: none !important;
+  }
+
+  .slides-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 110px;
+    width: 110px;
+    background: #fff;
+    color: #A15A95;
+    font-weight: 700;
+    border-radius: 16px;
+    text-decoration: none;
+    font-size: 1.08rem;
+    border: none;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
+    transition: background 0.2s, color 0.2s;
     text-align: center;
-    padding: 2rem;
-    background: white;
-    border-radius: 8px;
-    margin: 1rem 0;
+    margin: 0 auto;
+    white-space: normal;
+    padding: 0 8px;
+    box-sizing: border-box;
+  }
+  .slides-btn span {
+    display: block;
+    width: 100%;
+    text-align: center;
+  }
+  .slides-btn:hover {
+    background: #F1C400;
+    color: #fff;
   }
 
   .error {
@@ -331,49 +428,55 @@
     border: 1px solid #ffc107;
   }
   
+
   .update-info {
-    text-align: center;
-    padding: 0.75rem;
-    background: #e7f3ff;
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
-    border: 1px solid #b3d9ff;
-    transition: background-color 0.3s ease;
-  }
-  
-  .update-info.refreshing {
-    background: #d4edff;
-  }
-  
-  .update-info p {
-    margin: 0;
-    font-size: 0.875rem;
-    color: #0066cc;
-    font-weight: 500;
+    position: static;
+    background: none;
+    color: #002D72;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border: none;
+    margin: 1.5rem 0 0 0;
+    box-shadow: none;
+    opacity: 0.7;
+    text-align: right;
+    width: 100%;
+    max-width: 1200px;
   }
 
-  .chart-section, .qr-section {
-    background: white;
+
+  .charts-row {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+  .chart-section {
+    background: #fff;
     padding: 1.5rem;
-    margin-bottom: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    flex: 1 1 0%;
   }
-
-  .chart-section h2, .qr-section h2 {
+  .chart-section h2 {
     margin: 0 0 1rem 0;
     font-size: 1.5rem;
-    color: #333;
+    color: #002D72;
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.5px;
   }
 
-  .qr-section {
+  /* .qr-section {
     text-align: center;
   }
 
   .qr-section p {
     color: #666;
     margin-bottom: 1rem;
-  }
+  } */
 
   footer {
     text-align: center;
@@ -382,37 +485,21 @@
     font-size: 0.875rem;
   }
 
-  /* Tablet and up */
-  @media (min-width: 768px) {
-    main {
-      padding: 2rem;
-    }
 
-    header h1 {
-      font-size: 2.5rem;
+  @media (min-width: 1200px) {
+    .charts-row {
+      flex-direction: row;
+      gap: 2.5rem;
     }
-
-    header p {
-      font-size: 1.125rem;
+    .chart-section {
+      padding: 2.5rem 2rem;
     }
-
-    .chart-section, .qr-section {
-      padding: 2rem;
+    .hero-content {
+      gap: 4rem;
     }
-
-    .chart-section h2, .qr-section h2 {
-      font-size: 1.75rem;
-    }
-  }
-
-  /* Desktop */
-  @media (min-width: 1024px) {
-    main {
-      padding: 3rem;
-    }
-
-    header {
-      padding: 3rem 2rem;
+    .update-info {
+      top: 90px;
+      right: 80px;
     }
   }
 </style>

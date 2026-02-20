@@ -36,14 +36,12 @@
   .qr-code {
     border: 2px solid #e0e0e0;
     border-radius: 8px;
-    padding: 1rem;
+    padding: 0;
     background: white;
     transition: transform 0.2s;
   }
 
-  .qr-code:hover {
-    transform: scale(1.05);
-  }
+
 
   .qr-link {
     margin: 0;
@@ -55,7 +53,5 @@
     font-weight: 500;
   }
 
-  .qr-link a:hover {
-    text-decoration: underline;
-  }
+
 </style>
