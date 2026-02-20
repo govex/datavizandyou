@@ -4,13 +4,16 @@
 
   let { 
     data = [], 
-    color = '#4A90E2',
+    color = '#4A90E2', // main color for max bar
     barHeight = 50,
     minHeight = 200
   } = $props();
 
+  // Find the max value for coloring (runes mode)
+  let maxValue = $derived(() => data.length ? Math.max(...data.map(d => d.value)) : null);
+
   let chartContainer;
-  let mounted = $state(false);
+  let mounted = false;
 
   // Constants
   const LABEL_PADDING = 10; // Padding for axis labels in pixels
@@ -228,8 +231,8 @@
       .attr('y', d => yScale(d.label))
       .attr('width', 0)
       .attr('height', yScale.bandwidth())
-      .attr('fill', color)
-      .attr('rx', 4)
+      .attr('fill', d => d.value === maxValue ? color : '#B2B2B2')
+      .attr('rx', 0)
       .transition()
       .duration(ANIMATION_DURATION_ENTER)
       .attr('width', d => xScale(d.value));
@@ -239,7 +242,9 @@
       .duration(ANIMATION_DURATION_UPDATE)
       .attr('y', d => yScale(d.label))
       .attr('height', yScale.bandwidth())
-      .attr('width', d => xScale(d.value));
+      .attr('width', d => xScale(d.value))
+      .attr('fill', d => d.value === maxValue ? color : '#B2B2B2')
+      .attr('rx', 0);
 
     // Exit old bars
     bars.exit()
@@ -307,7 +312,6 @@
     };
   });
 
-  // Re-render when data changes
   $effect(() => {
     if (mounted && data && data.length > 0) {
       renderChart();
@@ -322,11 +326,16 @@
     width: 100%;
     min-height: 200px;
     position: relative;
+    background: #fff;
+    border-radius: 0;
+    box-shadow: none;
+    font-family: 'Work Sans', sans-serif;
   }
 
   :global(.bar) {
     cursor: pointer;
     transition: opacity 0.2s;
+    rx: 0;
   }
 
   :global(.bar:hover) {
