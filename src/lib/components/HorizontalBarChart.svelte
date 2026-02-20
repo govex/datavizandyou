@@ -23,7 +23,15 @@
   function wrapText(text, width) {
     text.each(function() {
       const textElement = d3.select(this);
-      const words = textElement.text().split(/\s+/).reverse();
+      // Split on whitespace and forward slashes, but keep the slash with the preceding word
+      const text_content = textElement.text();
+      const words = text_content.split(/(\s+)/).flatMap(part => {
+        // Further split each part on forward slashes, keeping slash with preceding word
+        if (/\//.test(part)) {
+          return part.split(/(?<=\/)/).filter(w => w.trim() !== '');
+        }
+        return part.trim() === '' ? [] : [part.trim()];
+      }).reverse();
       const y = textElement.attr('y');
       const lineHeight = 1.0; // ems
       
