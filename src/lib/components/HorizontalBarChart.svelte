@@ -52,8 +52,8 @@
         tempTspan.remove();
       }
       
-      // Calculate dy offset to center the text based on number of lines
-      // For multi-line text, shift up by half the total height to center
+      // Calculate dy offset to position the text based on number of lines
+      // Shifts the first line up to accommodate multiple lines below it
       const dyOffset = -(lineCount - 1) * lineHeight;
       
       // Second pass: actually create the wrapped text with proper centering
