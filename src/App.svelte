@@ -32,7 +32,7 @@
   // Category mapping for combining related items
   const categoryMappings = {
     'AI Generated': ['claude', 'github copilot', 'chatGPT or other AI interface'],
-    'Physical Medium': ['paint', 'yarn', 'thread', 'fabric', 'plastic', 'stone', 'clay, or some other physical medium']
+    'Physical Medium': ['paint', 'yarn', 'thread', 'fabric', 'plastic', 'stone', 'clay', 'clay, or some other physical medium', 'or some other physical medium']
   };
 
   function getCombinedCategory(label) {
