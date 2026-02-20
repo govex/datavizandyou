@@ -12,6 +12,48 @@
   let chartContainer;
   let mounted = $state(false);
 
+  // Constants
+  const LABEL_PADDING = 10; // Padding for axis labels in pixels
+
+  /**
+   * Wraps text within a specified width by splitting into multiple tspan elements
+   * @param {d3.Selection} text - D3 selection of text elements to wrap
+   * @param {number} width - Maximum width in pixels for the text
+   */
+  function wrapText(text, width) {
+    text.each(function() {
+      const textElement = d3.select(this);
+      const words = textElement.text().split(/\s+/).reverse();
+      let line = [];
+      let lineNumber = 0;
+      const lineHeight = 1.1; // ems
+      const y = textElement.attr('y');
+      const dy = parseFloat(textElement.attr('dy')) || 0;
+      let tspan = textElement.text(null)
+        .append('tspan')
+        .attr('x', -LABEL_PADDING)
+        .attr('y', y)
+        .attr('dy', dy + 'em');
+      
+      let word = words.pop();
+      while (word !== undefined) {
+        line.push(word);
+        tspan.text(line.join(' '));
+        if (tspan.node().getComputedTextLength() > width) {
+          line.pop();
+          tspan.text(line.join(' '));
+          line = [word];
+          tspan = textElement.append('tspan')
+            .attr('x', -LABEL_PADDING)
+            .attr('y', y)
+            .attr('dy', ++lineNumber * lineHeight + dy + 'em')
+            .text(word);
+        }
+        word = words.pop();
+      }
+    });
+  }
+
   function renderChart() {
     if (!chartContainer || !data || data.length === 0) return;
 
@@ -19,7 +61,19 @@
     d3.select(chartContainer).selectAll('*').remove();
 
     const containerWidth = chartContainer.clientWidth;
-    const margin = { top: 20, right: 30, bottom: 40, left: 120 };
+    
+    // Calculate responsive left margin with maximum width constraints
+    // Mobile: max 100px, Tablet: max 120px, Desktop: max 150px
+    let maxLeftMargin;
+    if (containerWidth < 768) {
+      maxLeftMargin = Math.min(100, containerWidth * 0.25); // 25% of width, max 100px
+    } else if (containerWidth < 1024) {
+      maxLeftMargin = Math.min(120, containerWidth * 0.2); // 20% of width, max 120px
+    } else {
+      maxLeftMargin = Math.min(150, containerWidth * 0.15); // 15% of width, max 150px
+    }
+    
+    const margin = { top: 20, right: 30, bottom: 40, left: maxLeftMargin };
     const width = containerWidth - margin.left - margin.right;
     
     // Calculate dynamic height based on number of bars
@@ -62,7 +116,8 @@
     svg.append('g')
       .call(yAxis)
       .selectAll('text')
-      .style('font-size', '12px');
+      .style('font-size', '12px')
+      .call(wrapText, margin.left - LABEL_PADDING); // Wrap text to fit within left margin
 
     // Add bars
     svg.selectAll('.bar')
