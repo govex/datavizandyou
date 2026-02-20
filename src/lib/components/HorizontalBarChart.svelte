@@ -14,6 +14,7 @@
 
   // Constants
   const LABEL_PADDING = 10; // Padding for axis labels in pixels
+  const LABEL_X_OFFSET = 5; // Horizontal offset for value labels from bar end
   const AXIS_TEXT_SIZE = '12px'; // Font size for axis labels
   
   // Animation durations (ms)
@@ -247,7 +248,7 @@
     labels.enter()
       .append('text')
       .attr('class', 'label')
-      .attr('x', d => xScale(d.value) + 5)
+      .attr('x', d => xScale(d.value) + LABEL_X_OFFSET)
       .attr('y', d => yScale(d.label) + yScale.bandwidth() / 2)
       .attr('dy', '.35em')
       .style('font-size', AXIS_TEXT_SIZE)
@@ -262,7 +263,7 @@
     // Update existing labels
     labels.transition()
       .duration(ANIMATION_DURATION_UPDATE)
-      .attr('x', d => xScale(d.value) + 5)
+      .attr('x', d => xScale(d.value) + LABEL_X_OFFSET)
       .attr('y', d => yScale(d.label) + yScale.bandwidth() / 2)
       .text(d => d.value);
 
