@@ -114,8 +114,9 @@
     };
   });
 
+  // Re-render when data changes
   $effect(() => {
-    if (mounted && data) {
+    if (mounted && data && data.length > 0) {
       renderChart();
     }
   });

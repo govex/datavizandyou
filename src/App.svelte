@@ -8,9 +8,11 @@
   let loading = $state(true);
   let error = $state(null);
 
-  // CSV data sources
+  // CSV data sources - REPLACE THESE WITH YOUR ACTUAL URLS
+  // To get CSV URLs: File > Share > Publish to web > Choose sheet > CSV format
   const TOOLBOX_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6FxrKCNJfXwVWxJ8-H3Q1h_7jXjQ9jQ5Q/pub?gid=0&single=true&output=csv';
   const CHARTS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6FxrKCNJfXwVWxJ8-H3Q1h_7jXjQ9jQ5Q/pub?gid=1&single=true&output=csv';
+  // Replace with your Google Form URL
   const GOOGLE_FORM_URL = 'https://forms.gle/yourformid';
 
   async function fetchCSVData(url) {
@@ -29,14 +31,37 @@
 
   function parseCSV(text) {
     const lines = text.trim().split('\n');
+    if (lines.length === 0) return [];
+    
     const headers = lines[0].split(',').map(h => h.trim());
     const data = [];
     
     for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(',').map(v => v.trim());
+      const line = lines[i];
+      if (!line.trim()) continue;
+      
+      // Simple CSV parsing with support for quoted fields
+      const values = [];
+      let current = '';
+      let inQuotes = false;
+      
+      for (let j = 0; j < line.length; j++) {
+        const char = line[j];
+        
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          values.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      values.push(current.trim());
+      
       if (values.length >= 2) {
         data.push({
-          label: values[0],
+          label: values[0].replace(/^"|"$/g, ''),
           value: parseFloat(values[1]) || 0
         });
       }
