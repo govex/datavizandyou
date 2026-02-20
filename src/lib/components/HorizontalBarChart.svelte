@@ -28,6 +28,8 @@
       const lineHeight = 1.0; // ems
       
       // First pass: determine how many lines we need
+      // Use a copy of words array to preserve original for second pass
+      const wordsCopy = [...words];
       let line = [];
       let lineCount = 1;
       let tempTspan = textElement.append('tspan')
@@ -35,8 +37,8 @@
       
       try {
         // Process words in the same order as the second pass
-        for (let i = words.length - 1; i >= 0; i--) {
-          const word = words[i];
+        let word = wordsCopy.pop();
+        while (word !== undefined) {
           line.push(word);
           tempTspan.text(line.join(' '));
           if (tempTspan.node().getComputedTextLength() > width) {
@@ -44,6 +46,7 @@
             lineCount++;
             line = [word];
           }
+          word = wordsCopy.pop();
         }
       } finally {
         tempTspan.remove();
