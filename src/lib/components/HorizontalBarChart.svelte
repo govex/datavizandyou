@@ -1,7 +1,5 @@
 <script>
   import { onMount } from 'svelte';
-  import { tweened } from 'svelte/motion';
-  import { cubicOut } from 'svelte/easing';
   import * as d3 from 'd3';
 
   let { 
@@ -13,12 +11,14 @@
 
   let chartContainer;
   let mounted = $state(false);
-  
-  // Store animated values for each bar
-  let barAnimations = new Map();
 
   // Constants
   const LABEL_PADDING = 10; // Padding for axis labels in pixels
+  
+  // Animation durations (ms)
+  const ANIMATION_DURATION_ENTER = 800;
+  const ANIMATION_DURATION_UPDATE = 600;
+  const ANIMATION_DURATION_EXIT = 400;
 
   /**
    * Wraps text within a specified width by splitting into multiple tspan elements
@@ -181,7 +181,7 @@
       svg.select('.x-axis')
         .attr('transform', `translate(0,${chartHeight})`)
         .transition()
-        .duration(600)
+        .duration(ANIMATION_DURATION_UPDATE)
         .call(xAxis);
       
       svg.select('.x-axis')
@@ -190,7 +190,7 @@
 
       svg.select('.y-axis')
         .transition()
-        .duration(600)
+        .duration(ANIMATION_DURATION_UPDATE)
         .call(yAxis);
       
       svg.select('.y-axis')
@@ -198,17 +198,6 @@
         .style('font-size', '12px')
         .call(wrapText, margin.left - LABEL_PADDING);
     }
-
-    // Update or create animated tweened values for bars
-    sortedData.forEach(d => {
-      if (!barAnimations.has(d.label)) {
-        barAnimations.set(d.label, tweened(0, {
-          duration: 800,
-          easing: cubicOut
-        }));
-      }
-      barAnimations.get(d.label).set(d.value);
-    });
 
     // Data join for bars with enter/update/exit pattern
     const bars = svg.selectAll('.bar')
@@ -225,12 +214,12 @@
       .attr('fill', color)
       .attr('rx', 4)
       .transition()
-      .duration(800)
+      .duration(ANIMATION_DURATION_ENTER)
       .attr('width', d => xScale(d.value));
 
     // Update existing bars
     bars.transition()
-      .duration(600)
+      .duration(ANIMATION_DURATION_UPDATE)
       .attr('y', d => yScale(d.label))
       .attr('height', yScale.bandwidth())
       .attr('width', d => xScale(d.value));
@@ -238,7 +227,7 @@
     // Exit old bars
     bars.exit()
       .transition()
-      .duration(400)
+      .duration(ANIMATION_DURATION_EXIT)
       .attr('width', 0)
       .remove();
 
@@ -258,13 +247,13 @@
       .style('opacity', 0)
       .text(d => d.value)
       .transition()
-      .duration(800)
+      .duration(ANIMATION_DURATION_ENTER)
       .delay(200)
       .style('opacity', 1);
 
     // Update existing labels
     labels.transition()
-      .duration(600)
+      .duration(ANIMATION_DURATION_UPDATE)
       .attr('x', d => xScale(d.value) + 5)
       .attr('y', d => yScale(d.label) + yScale.bandwidth() / 2)
       .text(d => d.value);
@@ -272,7 +261,7 @@
     // Exit old labels
     labels.exit()
       .transition()
-      .duration(400)
+      .duration(ANIMATION_DURATION_EXIT)
       .style('opacity', 0)
       .remove();
   }
