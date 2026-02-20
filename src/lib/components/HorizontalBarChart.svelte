@@ -14,6 +14,14 @@
 
   // Constants
   const LABEL_PADDING = 10; // Padding for axis labels in pixels
+  const LABEL_X_OFFSET = 5; // Horizontal offset for value labels from bar end
+  const AXIS_TEXT_SIZE = '12px'; // Font size for axis labels
+  
+  // Animation durations (ms)
+  const ANIMATION_DURATION_ENTER = 800;
+  const ANIMATION_DURATION_UPDATE = 600;
+  const ANIMATION_DURATION_EXIT = 400;
+  const ANIMATION_DELAY_LABEL_ENTER = 200; // Delay before labels fade in
 
   /**
    * Wraps text within a specified width by splitting into multiple tspan elements
@@ -96,9 +104,6 @@
   function renderChart() {
     if (!chartContainer || !data || data.length === 0) return;
 
-    // Clear previous chart
-    d3.select(chartContainer).selectAll('*').remove();
-
     // Sort data in descending order by value (highest values on top)
     const sortedData = [...data].sort((a, b) => b.value - a.value);
 
@@ -122,13 +127,30 @@
     const calculatedHeight = Math.max(minHeight, (sortedData.length * barHeight) + margin.top + margin.bottom);
     const chartHeight = calculatedHeight - margin.top - margin.bottom;
 
-    // Create SVG
-    const svg = d3.select(chartContainer)
-      .append('svg')
-      .attr('width', containerWidth)
-      .attr('height', calculatedHeight)
-      .append('g')
-      .attr('transform', `translate(${margin.left},${margin.top})`);
+    // Get or create SVG elements
+    let svgRoot = d3.select(chartContainer).select('svg');
+    const isInitialRender = svgRoot.empty();
+    
+    let chartGroup; // D3 selection of the 'g' element for chart content
+
+    if (isInitialRender) {
+      // Create SVG structure for initial render
+      svgRoot = d3.select(chartContainer)
+        .append('svg')
+        .attr('width', containerWidth)
+        .attr('height', calculatedHeight);
+      
+      chartGroup = svgRoot.append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+    } else {
+      // Update existing SVG dimensions
+      svgRoot
+        .attr('width', containerWidth)
+        .attr('height', calculatedHeight);
+      
+      chartGroup = svgRoot.select('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+    }
 
     // Determine x scale domain
     // Default to [0,5] if max value is less than 5
@@ -152,24 +174,54 @@
 
     const yAxis = d3.axisLeft(yScale);
 
-    // Add X axis
-    svg.append('g')
-      .attr('transform', `translate(0,${chartHeight})`)
-      .call(xAxis)
-      .selectAll('text')
-      .style('font-size', '12px');
+    if (isInitialRender) {
+      // Add X axis
+      chartGroup.append('g')
+        .attr('class', 'x-axis')
+        .attr('transform', `translate(0,${chartHeight})`)
+        .call(xAxis)
+        .selectAll('text')
+        .style('font-size', AXIS_TEXT_SIZE);
 
-    // Add Y axis
-    svg.append('g')
-      .call(yAxis)
-      .selectAll('text')
-      .style('font-size', '12px')
-      .call(wrapText, margin.left - LABEL_PADDING); // Wrap text to fit within left margin
+      // Add Y axis
+      chartGroup.append('g')
+        .attr('class', 'y-axis')
+        .call(yAxis)
+        .selectAll('text')
+        .style('font-size', AXIS_TEXT_SIZE)
+        .call(wrapText, margin.left - LABEL_PADDING);
+    } else {
+      // Update X axis
+      chartGroup.select('.x-axis')
+        .attr('transform', `translate(0,${chartHeight})`)
+        .transition()
+        .duration(ANIMATION_DURATION_UPDATE)
+        .call(xAxis)
+        .on('end', function() {
+          // Style text after transition completes
+          d3.select(this).selectAll('text')
+            .style('font-size', AXIS_TEXT_SIZE);
+        });
 
-    // Add bars
-    svg.selectAll('.bar')
-      .data(sortedData)
-      .enter()
+      // Update Y axis
+      chartGroup.select('.y-axis')
+        .transition()
+        .duration(ANIMATION_DURATION_UPDATE)
+        .call(yAxis)
+        .on('end', function() {
+          // Style and wrap text after transition completes
+          d3.select(this).selectAll('text')
+            .style('font-size', AXIS_TEXT_SIZE)
+            .call(wrapText, margin.left - LABEL_PADDING);
+        });
+    }
+
+    // Data join for bars with enter/update/exit pattern
+    const bars = chartGroup.selectAll('.bar')
+      .data(sortedData, d => d.label);
+
+    // Enter new bars
+    bars.enter()
       .append('rect')
       .attr('class', 'bar')
       .attr('x', 0)
@@ -179,26 +231,61 @@
       .attr('fill', color)
       .attr('rx', 4)
       .transition()
-      .duration(800)
+      .duration(ANIMATION_DURATION_ENTER)
       .attr('width', d => xScale(d.value));
 
-    // Add value labels
-    svg.selectAll('.label')
-      .data(sortedData)
-      .enter()
+    // Update existing bars
+    bars.transition()
+      .duration(ANIMATION_DURATION_UPDATE)
+      .attr('y', d => yScale(d.label))
+      .attr('height', yScale.bandwidth())
+      .attr('width', d => xScale(d.value));
+
+    // Exit old bars
+    bars.exit()
+      .transition()
+      .duration(ANIMATION_DURATION_EXIT)
+      .attr('width', 0)
+      .remove();
+
+    // Data join for labels
+    const labels = chartGroup.selectAll('.label')
+      .data(sortedData, d => d.label);
+
+    // Enter new labels
+    const enteringLabels = labels.enter()
       .append('text')
       .attr('class', 'label')
-      .attr('x', d => xScale(d.value) + 5)
+      .attr('opacity', 0)  // Set initial opacity immediately
+      .attr('x', d => xScale(d.value) + LABEL_X_OFFSET)
       .attr('y', d => yScale(d.label) + yScale.bandwidth() / 2)
       .attr('dy', '.35em')
-      .style('font-size', '12px')
+      .style('font-size', AXIS_TEXT_SIZE)
       .style('fill', '#333')
-      .style('opacity', 0)
-      .text(d => d.value)
+      .text(d => d.value);
+    
+    // Transition opacity from 0 to 1
+    enteringLabels
       .transition()
-      .duration(800)
-      .delay(400)
-      .style('opacity', 1);
+      .duration(ANIMATION_DURATION_ENTER)
+      .delay(ANIMATION_DELAY_LABEL_ENTER)
+      .attr('opacity', 1);
+
+    // Update existing labels
+    labels
+      .attr('opacity', 1)  // Ensure existing labels are visible
+      .transition()
+      .duration(ANIMATION_DURATION_UPDATE)
+      .attr('x', d => xScale(d.value) + LABEL_X_OFFSET)
+      .attr('y', d => yScale(d.label) + yScale.bandwidth() / 2)
+      .text(d => d.value);
+
+    // Exit old labels
+    labels.exit()
+      .transition()
+      .duration(ANIMATION_DURATION_EXIT)
+      .attr('opacity', 0)
+      .remove();
   }
 
   onMount(() => {
