@@ -29,6 +29,45 @@
     }
   }
 
+  // Category mapping for combining related items
+  const categoryMappings = {
+    'AI Generated': ['claude', 'github copilot', 'chatGPT or other AI interface'],
+    'Physical Medium': ['paint', 'yarn', 'thread', 'fabric', 'plastic', 'stone', 'clay, or some other physical medium']
+  };
+
+  function getCombinedCategory(label) {
+    const lowerLabel = label.toLowerCase().trim();
+    
+    for (const [category, items] of Object.entries(categoryMappings)) {
+      for (const item of items) {
+        if (lowerLabel === item.toLowerCase().trim()) {
+          return category;
+        }
+      }
+    }
+    
+    return label; // Return original label if no mapping found
+  }
+
+  function combineCategories(data) {
+    const combined = new Map();
+    
+    for (const item of data) {
+      const category = getCombinedCategory(item.label);
+      
+      if (combined.has(category)) {
+        combined.set(category, combined.get(category) + item.value);
+      } else {
+        combined.set(category, item.value);
+      }
+    }
+    
+    return Array.from(combined.entries()).map(([label, value]) => ({
+      label,
+      value
+    }));
+  }
+
   function parseCSV(text) {
     const lines = text.trim().split('\n');
     if (lines.length === 0) return [];
@@ -95,8 +134,8 @@
         fetchCSVData(CHARTS_CSV)
       ]);
       
-      toolBoxData = toolbox;
-      mostUsedChartsData = charts;
+      toolBoxData = combineCategories(toolbox);
+      mostUsedChartsData = combineCategories(charts);
     } catch (err) {
       error = err.message;
       // Use sample data for demonstration if fetch fails
