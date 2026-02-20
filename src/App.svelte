@@ -17,8 +17,8 @@
   // Replace with your Google Form URL
   const GOOGLE_FORM_URL = 'https://forms.gle/7PAb7GmDP91HpfK3A';
   
-  // Auto-refresh interval in milliseconds (30 seconds)
-  const REFRESH_INTERVAL = 30000;
+  // Auto-refresh interval in milliseconds (10 seconds)
+  const REFRESH_INTERVAL = 10000;
 
   async function fetchCSVData(url) {
     console.log(`[fetchCSVData] Fetching data from: ${url}`);
@@ -282,9 +282,6 @@
       <div class="update-info" class:refreshing={isRefreshing}>
         <p>
           Last updated: {lastUpdate.toLocaleTimeString()} • Auto-refreshing every {REFRESH_INTERVAL / 1000}s
-          {#if isRefreshing}
-            <span class="refresh-indicator">↻ Checking for updates...</span>
-          {/if}
         </p>
       </div>
     {/if}
@@ -386,29 +383,6 @@
     font-size: 0.875rem;
     color: #0066cc;
     font-weight: 500;
-  }
-  
-  .refresh-indicator {
-    margin-left: 0.5rem;
-    font-weight: 600;
-    display: inline-block;
-    animation: spin 1s linear infinite;
-  }
-  
-  @keyframes spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  
-  /* Respect user's motion preferences */
-  @media (prefers-reduced-motion: reduce) {
-    .refresh-indicator {
-      animation: none;
-    }
   }
 
   .chart-section, .qr-section {
