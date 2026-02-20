@@ -1,6 +1,13 @@
 export async function handler(event, context) {
+  const timestamp = new Date().toISOString();
+  
+  console.log(`[${timestamp}] Webhook request received`);
+  console.log('Request method:', event.httpMethod);
+  console.log('Request headers:', JSON.stringify(event.headers, null, 2));
+  
   // Only accept POST requests
   if (event.httpMethod !== 'POST') {
+    console.log(`[${timestamp}] Rejected: Method not allowed (${event.httpMethod})`);
     return {
       statusCode: 405,
       body: JSON.stringify({ error: 'Method not allowed' })
@@ -11,7 +18,10 @@ export async function handler(event, context) {
     // Parse the incoming webhook data
     const data = JSON.parse(event.body);
     
-    console.log('Webhook received:', data);
+    console.log(`[${timestamp}] Webhook data received:`, JSON.stringify(data, null, 2));
+    console.log('Data type:', data.type);
+    console.log('Sheet name:', data.sheet);
+    console.log('User:', data.user || 'N/A');
 
     // In a production environment, you would:
     // 1. Validate the webhook signature
@@ -19,7 +29,7 @@ export async function handler(event, context) {
     // 3. Trigger a rebuild or notify connected clients
 
     // For now, we'll just acknowledge the webhook
-    return {
+    const response = {
       statusCode: 200,
       headers: {
         'Content-Type': 'application/json',
@@ -30,16 +40,30 @@ export async function handler(event, context) {
       body: JSON.stringify({ 
         success: true, 
         message: 'Webhook received successfully',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        receivedData: {
+          type: data.type,
+          sheet: data.sheet,
+          timestamp: data.timestamp
+        }
       })
     };
+    
+    console.log(`[${timestamp}] Webhook processed successfully`);
+    console.log('Response:', response.body);
+    
+    return response;
   } catch (error) {
-    console.error('Webhook error:', error);
+    console.error(`[${timestamp}] Webhook error:`, error);
+    console.error('Error stack:', error.stack);
+    console.error('Request body:', event.body);
+    
     return {
       statusCode: 500,
       body: JSON.stringify({ 
         error: 'Internal server error',
-        message: error.message 
+        message: error.message,
+        timestamp: timestamp
       })
     };
   }

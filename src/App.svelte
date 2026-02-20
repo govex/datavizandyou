@@ -16,15 +16,18 @@
   const GOOGLE_FORM_URL = 'https://forms.gle/7PAb7GmDP91HpfK3A';
 
   async function fetchCSVData(url) {
+    console.log(`[fetchCSVData] Fetching data from: ${url}`);
     try {
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const text = await response.text();
-      return parseCSV(text);
+      const parsedData = parseCSV(text);
+      console.log(`[fetchCSVData] Successfully fetched and parsed ${parsedData.length} rows`);
+      return parsedData;
     } catch (err) {
-      console.error('Error fetching CSV:', err);
+      console.error('[fetchCSVData] Error fetching CSV:', err);
       throw err;
     }
   }
@@ -125,6 +128,9 @@
   }
 
   async function loadData() {
+    const timestamp = new Date().toISOString();
+    console.log(`[${timestamp}] [loadData] Starting data load...`);
+    
     loading = true;
     error = null;
     
@@ -136,7 +142,17 @@
       
       toolBoxData = combineCategories(toolbox);
       mostUsedChartsData = charts;
+      
+      console.log(`[${timestamp}] [loadData] Data loaded successfully`);
+      console.log('  - ToolBox data items:', toolBoxData.length);
+      console.log('  - Charts data items:', mostUsedChartsData.length);
+      console.log('  - ToolBox data:', JSON.stringify(toolBoxData, null, 2));
+      console.log('  - Charts data:', JSON.stringify(mostUsedChartsData, null, 2));
     } catch (err) {
+      console.error(`[${timestamp}] [loadData] Error loading data:`, err);
+      console.error('  - Error message:', err.message);
+      console.error('  - Error stack:', err.stack);
+      
       error = err.message;
       // Use sample data for demonstration if fetch fails
       toolBoxData = [
@@ -151,20 +167,30 @@
         { label: 'Pie Chart', value: 20 },
         { label: 'Scatter Plot', value: 15 }
       ];
+      console.log(`[${timestamp}] [loadData] Using sample data due to error`);
     } finally {
       loading = false;
+      console.log(`[${timestamp}] [loadData] Load complete (loading = false)`);
     }
   }
 
   onMount(() => {
+    console.log('[onMount] Component mounted, initializing...');
     loadData();
     
     // Listen for webhook updates
     if (typeof window !== 'undefined') {
+      console.log('[onMount] Setting up data-update event listener');
       window.addEventListener('data-update', (event) => {
-        console.log('Data update received:', event.detail);
+        const timestamp = new Date().toISOString();
+        console.log(`[${timestamp}] [data-update] Event received!`);
+        console.log('  - Event detail:', JSON.stringify(event.detail, null, 2));
+        console.log('  - Triggering data reload...');
         loadData();
       });
+      console.log('[onMount] Event listener registered successfully');
+    } else {
+      console.warn('[onMount] Window object not available, event listener not registered');
     }
   });
 </script>
