@@ -62,9 +62,9 @@ function processFormResponses() {
   Logger.log('Processing ' + responses.length + ' responses');
   Logger.log('Headers: ' + headers.join(', '));
   
-  // Find column indexes - adjust based on your actual form
-  const toolboxColumnIndex = headers.findIndex(h => h.toLowerCase().includes('tool'));
-  const chartsColumnIndex = headers.findIndex(h => h.toLowerCase().includes('chart'));
+  // Column indexes for multiselect questions (0-based)
+  const toolboxColumnIndex = 2; // Column C
+  const chartsColumnIndex = 5;  // Column F
   
   // Column E (index 4) - "If you've used more than one data visualization tool, what's your favorite?"
   const favoriteToolColumnIndex = 4; // Column E is index 4
@@ -145,6 +145,7 @@ function processTextForWordCloud(texts) {
     // Tokenize: split on whitespace and punctuation, convert to lowercase
     const words = text
       .toLowerCase()
+      .replace(/'/g, '') // Remove apostrophes first (so don't becomes dont, it's becomes its, etc.)
       .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, ' ') // Replace punctuation with space
       .replace(/\s{2,}/g, ' ') // Replace multiple spaces with single space
       .split(/\s+/)
