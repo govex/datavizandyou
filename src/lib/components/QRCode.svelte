@@ -3,15 +3,12 @@
     url = '', 
     size = 200 
   } = $props();
-
-  // Generate QR code URL using a public API
-  const qrCodeUrl = $derived(`https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(url)}`);
 </script>
 
 <div class="qr-container">
   <a href={url} target="_blank" rel="noopener noreferrer">
     <img 
-      src={qrCodeUrl} 
+      src="/survey.png" 
       alt="QR Code" 
       width={size} 
       height={size}
