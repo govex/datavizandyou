@@ -10,8 +10,8 @@
   import HorizontalBarChart from './lib/components/HorizontalBarChart.svelte';
   import QRCode from './lib/components/QRCode.svelte';
   import { onMount } from 'svelte';
-  let toolBoxData = [];
-  let mostUsedChartsData = [];
+  let toolBoxData = $state([]);
+  let mostUsedChartsData = $state([]);
   let loading = $state(true);
   let isRefreshing = $state(false);
   let error = $state(null);
