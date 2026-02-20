@@ -18,12 +18,15 @@
     // Clear previous chart
     d3.select(chartContainer).selectAll('*').remove();
 
+    // Sort data in descending order by value (highest values on top)
+    const sortedData = [...data].sort((a, b) => b.value - a.value);
+
     const containerWidth = chartContainer.clientWidth;
     const margin = { top: 20, right: 30, bottom: 40, left: 120 };
     const width = containerWidth - margin.left - margin.right;
     
     // Calculate dynamic height based on number of bars
-    const calculatedHeight = Math.max(minHeight, (data.length * barHeight) + margin.top + margin.bottom);
+    const calculatedHeight = Math.max(minHeight, (sortedData.length * barHeight) + margin.top + margin.bottom);
     const chartHeight = calculatedHeight - margin.top - margin.bottom;
 
     // Create SVG
@@ -34,13 +37,18 @@
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
+    // Determine x scale domain
+    // Default to [0,5] if max value is less than 5
+    const maxValue = d3.max(sortedData, d => d.value);
+    const xDomain = maxValue < 5 ? [0, 5] : [0, maxValue * 1.1];
+
     // Scales
     const xScale = d3.scaleLinear()
-      .domain([0, d3.max(data, d => d.value) * 1.1])
+      .domain(xDomain)
       .range([0, width]);
 
     const yScale = d3.scaleBand()
-      .domain(data.map(d => d.label))
+      .domain(sortedData.map(d => d.label))
       .range([0, chartHeight])
       .padding(0.2);
 
@@ -66,7 +74,7 @@
 
     // Add bars
     svg.selectAll('.bar')
-      .data(data)
+      .data(sortedData)
       .enter()
       .append('rect')
       .attr('class', 'bar')
@@ -82,7 +90,7 @@
 
     // Add value labels
     svg.selectAll('.label')
-      .data(data)
+      .data(sortedData)
       .enter()
       .append('text')
       .attr('class', 'label')
