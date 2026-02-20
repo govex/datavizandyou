@@ -248,6 +248,7 @@
     const enteringLabels = labels.enter()
       .append('text')
       .attr('class', 'label')
+      .attr('opacity', 0)  // Set initial opacity immediately
       .attr('x', d => xScale(d.value) + LABEL_X_OFFSET)
       .attr('y', d => yScale(d.label) + yScale.bandwidth() / 2)
       .attr('dy', '.35em')
@@ -255,16 +256,17 @@
       .style('fill', '#333')
       .text(d => d.value);
     
-    // Set initial opacity and transition to visible
+    // Transition opacity from 0 to 1
     enteringLabels
-      .style('opacity', 0)
       .transition()
       .duration(ANIMATION_DURATION_ENTER)
       .delay(ANIMATION_DELAY_LABEL_ENTER)
-      .style('opacity', 1);
+      .attr('opacity', 1);
 
     // Update existing labels
-    labels.transition()
+    labels
+      .attr('opacity', 1)  // Ensure existing labels are visible
+      .transition()
       .duration(ANIMATION_DURATION_UPDATE)
       .attr('x', d => xScale(d.value) + LABEL_X_OFFSET)
       .attr('y', d => yScale(d.label) + yScale.bandwidth() / 2)
@@ -274,7 +276,7 @@
     labels.exit()
       .transition()
       .duration(ANIMATION_DURATION_EXIT)
-      .style('opacity', 0)
+      .attr('opacity', 0)
       .remove();
   }
 
