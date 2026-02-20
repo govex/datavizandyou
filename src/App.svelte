@@ -271,7 +271,7 @@
     </div>
   {/if}
 
-  {#if error && !loading}
+  {#if error}
     <div class="error">
       <p>Note: Using sample data. {error}</p>
     </div>
@@ -401,6 +401,13 @@
     }
     to {
       transform: rotate(360deg);
+    }
+  }
+  
+  /* Respect user's motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    .refresh-indicator {
+      animation: none;
     }
   }
 
