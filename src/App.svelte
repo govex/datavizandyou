@@ -76,7 +76,7 @@
         }
         
         data.push({
-          label: label,
+          label,
           value: numericValue
         });
       }
