@@ -1,12 +1,13 @@
 <script>
   import HorizontalBarChart from './lib/components/HorizontalBarChart.svelte';
   import QRCode from './lib/components/QRCode.svelte';
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
 
   let toolBoxData = $state([]);
   let mostUsedChartsData = $state([]);
   let loading = $state(true);
   let error = $state(null);
+  let lastUpdate = $state(null);
 
   // CSV data sources - REPLACE THESE WITH YOUR ACTUAL URLS
   // To get CSV URLs: File > Share > Publish to web > Choose sheet > CSV format
@@ -14,6 +15,9 @@
   const CHARTS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTgjloHyyyB4tiRtcQUUSVsfpVunRlFqvm9-aFU042UAQcbF06SPGS1ZcCeEl4FHr4lMPQKqOQDNz3a/pub?gid=772083968&single=true&output=csv';
   // Replace with your Google Form URL
   const GOOGLE_FORM_URL = 'https://forms.gle/7PAb7GmDP91HpfK3A';
+  
+  // Auto-refresh interval in milliseconds (30 seconds)
+  const REFRESH_INTERVAL = 30000;
 
   async function fetchCSVData(url) {
     console.log(`[fetchCSVData] Fetching data from: ${url}`);
@@ -142,6 +146,7 @@
       
       toolBoxData = combineCategories(toolbox);
       mostUsedChartsData = charts;
+      lastUpdate = new Date();
       
       console.log(`[${timestamp}] [loadData] Data loaded successfully`);
       console.log('  - ToolBox data items:', toolBoxData.length);
@@ -168,6 +173,7 @@
         { label: 'Pie Chart', value: 20 },
         { label: 'Scatter Plot', value: 15 }
       ];
+      lastUpdate = new Date();
       console.log(`[${timestamp}] [loadData] Using sample data due to error`);
     } finally {
       loading = false;
@@ -175,11 +181,20 @@
     }
   }
 
+  let refreshInterval;
+
   onMount(() => {
     console.log('[onMount] Component mounted, initializing...');
     loadData();
     
-    // Listen for webhook updates
+    // Set up automatic polling for data updates
+    console.log(`[onMount] Setting up auto-refresh every ${REFRESH_INTERVAL / 1000} seconds`);
+    refreshInterval = setInterval(() => {
+      console.log('[Auto-refresh] Checking for data updates...');
+      loadData();
+    }, REFRESH_INTERVAL);
+    
+    // Listen for webhook updates (for future WebSocket implementation)
     if (typeof window !== 'undefined') {
       console.log('[onMount] Setting up data-update event listener');
       window.addEventListener('data-update', (event) => {
@@ -192,6 +207,14 @@
       console.log('[onMount] Event listener registered successfully');
     } else {
       console.warn('[onMount] Window object not available, event listener not registered');
+    }
+  });
+  
+  onDestroy(() => {
+    // Clean up the interval when component is destroyed
+    if (refreshInterval) {
+      console.log('[onDestroy] Cleaning up auto-refresh interval');
+      clearInterval(refreshInterval);
     }
   });
 </script>
@@ -215,6 +238,12 @@
   {/if}
 
   {#if !loading}
+    {#if lastUpdate}
+      <div class="update-info">
+        <p>Last updated: {lastUpdate.toLocaleTimeString()} • Auto-refreshing every {REFRESH_INTERVAL / 1000}s</p>
+      </div>
+    {/if}
+    
     <section class="chart-section">
       <h2>GovEx Tool Box</h2>
       <HorizontalBarChart 
@@ -291,6 +320,22 @@
     background: #fff3cd;
     color: #856404;
     border: 1px solid #ffc107;
+  }
+  
+  .update-info {
+    text-align: center;
+    padding: 0.75rem;
+    background: #e7f3ff;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border: 1px solid #b3d9ff;
+  }
+  
+  .update-info p {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #0066cc;
+    font-weight: 500;
   }
 
   .chart-section, .qr-section {
