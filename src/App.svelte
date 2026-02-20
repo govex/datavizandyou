@@ -21,11 +21,11 @@
 
   // CSV data sources - REPLACE THESE WITH YOUR ACTUAL URLS
   // To get CSV URLs: File > Share > Publish to web > Choose sheet > CSV format
-  const TOOLBOX_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTgjloHyyyB4tiRtcQUUSVsfpVunRlFqvm9-aFU042UAQcbF06SPGS1ZcCeEl4FHr4lMPQKqOQDNz3a/pub?gid=458688954&single=true&output=csv';
-  const CHARTS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTgjloHyyyB4tiRtcQUUSVsfpVunRlFqvm9-aFU042UAQcbF06SPGS1ZcCeEl4FHr4lMPQKqOQDNz3a/pub?gid=772083968&single=true&output=csv';
+  const TOOLBOX_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTgjloHyyyB4tiRtcQUUSVsfpVunRlFqvm9-aFU042UAQcbF06SPGS1ZcCeEl4FHr4lMPQKqOQDNz3a/pub?gid=609809117&single=true&output=csv';
+  const CHARTS_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTgjloHyyyB4tiRtcQUUSVsfpVunRlFqvm9-aFU042UAQcbF06SPGS1ZcCeEl4FHr4lMPQKqOQDNz3a/pub?gid=538410928&single=true&output=csv';
   // Word cloud CSV URLs - REPLACE WITH YOUR PUBLISHED SHEET URLS
-  const FAVORITE_TOOL_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTgjloHyyyB4tiRtcQUUSVsfpVunRlFqvm9-aFU042UAQcbF06SPGS1ZcCeEl4FHr4lMPQKqOQDNz3a/pub?gid=0&single=true&output=csv'; // PLACEHOLDER - Update with FavoriteTool sheet
-  const FAVORITE_VIZ_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTgjloHyyyB4tiRtcQUUSVsfpVunRlFqvm9-aFU042UAQcbF06SPGS1ZcCeEl4FHr4lMPQKqOQDNz3a/pub?gid=0&single=true&output=csv'; // PLACEHOLDER - Update with FavoriteViz sheet
+  const FAVORITE_TOOL_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTgjloHyyyB4tiRtcQUUSVsfpVunRlFqvm9-aFU042UAQcbF06SPGS1ZcCeEl4FHr4lMPQKqOQDNz3a/pub?gid=1443234122&single=true&output=csv';
+  const FAVORITE_VIZ_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTgjloHyyyB4tiRtcQUUSVsfpVunRlFqvm9-aFU042UAQcbF06SPGS1ZcCeEl4FHr4lMPQKqOQDNz3a/pub?gid=739795947&single=true&output=csv';
   // Replace with your Google Form URL
   const GOOGLE_FORM_URL = 'https://forms.gle/7PAb7GmDP91HpfK3A';
   
