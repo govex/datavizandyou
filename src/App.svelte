@@ -9,7 +9,6 @@
 
   import HorizontalBarChart from './lib/components/HorizontalBarChart.svelte';
   import QRCode from './lib/components/QRCode.svelte';
-  import { onMount } from 'svelte';
   let toolBoxData = $state([]);
   let mostUsedChartsData = $state([]);
   let loading = $state(true);
@@ -208,17 +207,30 @@
 
   $effect(() => {
     loadData(false); // Initial load, not a background refresh
+    
     // Set up automatic polling for data updates
     refreshInterval = setInterval(() => {
       loadData(true); // Background refresh
     }, REFRESH_INTERVAL);
+    
     // Listen for webhook updates (for future WebSocket implementation)
+    const handleDataUpdate = (event) => {
+      loadData(true); // Background refresh for webhook updates too
+    };
+    
     if (typeof window !== 'undefined') {
-      window.addEventListener('data-update', (event) => {
-        loadData(true); // Background refresh for webhook updates too
-      });
+      window.addEventListener('data-update', handleDataUpdate);
     }
-    // No onDestroy needed
+    
+    // Cleanup function - automatically called when component is destroyed
+    return () => {
+      if (refreshInterval) {
+        clearInterval(refreshInterval);
+      }
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('data-update', handleDataUpdate);
+      }
+    };
   });
 </script>
 
