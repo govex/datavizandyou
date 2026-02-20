@@ -60,9 +60,24 @@
       values.push(current.trim());
       
       if (values.length >= 2) {
+        const label = values[0].replace(/^"|"$/g, '');
+        const valueStr = values[1].replace(/^"|"$/g, '');
+        
+        // Skip entries with #VALUE! errors from spreadsheets
+        if (label === '#VALUE!' || valueStr === '#VALUE!') {
+          continue;
+        }
+        
+        const numericValue = parseFloat(valueStr);
+        
+        // Skip entries with invalid numeric values (NaN)
+        if (isNaN(numericValue)) {
+          continue;
+        }
+        
         data.push({
-          label: values[0].replace(/^"|"$/g, ''),
-          value: parseFloat(values[1]) || 0
+          label: label,
+          value: numericValue
         });
       }
     }
