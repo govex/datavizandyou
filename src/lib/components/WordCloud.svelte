@@ -12,6 +12,9 @@
   let chartContainer;
   let mounted = false;
   let containerHeight = $state(minHeight);
+  
+  // Check if we have enough data for a word cloud
+  let hasEnoughData = $derived(data && data.length >= 2);
 
   // Constants
   const MAX_FONT_SIZE = 48;
@@ -90,11 +93,13 @@
 
   onMount(() => {
     mounted = true;
-    renderCloud();
+    if (hasEnoughData) {
+      renderCloud();
+    }
 
     // Re-render on window resize
     const handleResize = () => {
-      if (mounted) {
+      if (mounted && hasEnoughData) {
         renderCloud();
       }
     };
@@ -109,13 +114,19 @@
 
   // Re-render when data changes (but skip if not mounted yet)
   $effect(() => {
-    if (mounted && data.length > 0) {
+    if (mounted && hasEnoughData) {
       renderCloud();
     }
   });
 </script>
 
-<div class="cloud-container" bind:this={chartContainer} style="height: {containerHeight}px;"></div>
+{#if hasEnoughData}
+  <div class="cloud-container" bind:this={chartContainer} style="height: {containerHeight}px;"></div>
+{:else}
+  <div class="placeholder-container" style="height: {containerHeight}px;">
+    <p class="placeholder-text">Not enough responses</p>
+  </div>
+{/if}
 
 <style>
   .cloud-container {
@@ -133,6 +144,27 @@
   }
 
   :global(.cloud-container text:hover) {
+    opacity: 0.7;
+  }
+  
+  .placeholder-container {
+    width: 100%;
+    position: relative;
+    background: #fff;
+    border-radius: 0;
+    box-shadow: none;
+    font-family: 'Work Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .placeholder-text {
+    color: #666;
+    font-size: 1.1rem;
+    font-weight: 500;
+    font-style: italic;
+    margin: 0;
     opacity: 0.7;
   }
 </style>
