@@ -554,24 +554,34 @@
       padding: 15px 20px;
     }
     .hero-content {
-      flex-direction: column;
-      align-items: stretch;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: flex-start;
       gap: 1rem;
     }
+    .hero-headlines {
+      flex: 1 1 100%;
+    }
     .hero-headlines h1 {
-      font-size: 1.5rem;
-      margin-bottom: 0.25rem;
+      font-size: 1.75rem;
+      margin-bottom: 0.5rem;
+      line-height: 1.2;
     }
     .hero-headlines p {
-      font-size: 0.85rem;
+      font-size: 0.9rem;
+      line-height: 1.4;
     }
     .hero-buttons {
-      flex-direction: column;
+      flex-direction: row;
+      flex-wrap: wrap;
       gap: 0.75rem;
+      width: 100%;
+      justify-content: space-between;
     }
     .qr-hero-block {
       padding: 0.75rem;
       min-width: auto;
+      flex: 1 1 calc(50% - 0.375rem);
     }
     .qr-hero-block :global(img),
     .qr-hero-block :global(svg) {
@@ -581,6 +591,7 @@
       min-width: auto;
       padding: 1rem;
       font-size: 0.9rem;
+      flex: 1 1 calc(50% - 0.375rem);
     }
     /* Reorder visualizations to group tool and chart type together */
     .favorite-tools {
