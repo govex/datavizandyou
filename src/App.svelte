@@ -549,6 +549,41 @@
   }
 
 
+  @media (max-width: 767px) {
+    .hero {
+      padding: 15px 20px;
+    }
+    .hero-content {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1rem;
+    }
+    .hero-headlines h1 {
+      font-size: 1.5rem;
+      margin-bottom: 0.25rem;
+    }
+    .hero-headlines p {
+      font-size: 0.85rem;
+    }
+    .hero-buttons {
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .qr-hero-block {
+      padding: 0.75rem;
+      min-width: auto;
+    }
+    .qr-hero-block :global(img),
+    .qr-hero-block :global(svg) {
+      height: 70px !important;
+    }
+    .slides-btn {
+      min-width: auto;
+      padding: 1rem;
+      font-size: 0.9rem;
+    }
+  }
+
   @media (min-width: 1200px) {
     .dashboard-grid {
       grid-template-columns: 1fr 1fr;
