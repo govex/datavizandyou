@@ -20,7 +20,7 @@
   const ANIMATION_DURATION = 800;
 
   function renderCloud() {
-    if (!chartContainer || !data || data.length === 0) return;
+    if (!chartContainer || !hasEnoughData) return;
 
     const containerWidth = chartContainer.clientWidth;
     const containerHeight = chartContainer.clientHeight || 250;
@@ -122,7 +122,7 @@
 
   // Re-render when data changes (but skip if not mounted yet)
   $effect(() => {
-    if (mounted && data.length > 0) {
+    if (mounted && hasEnoughData) {
       renderCloud();
     }
   });
