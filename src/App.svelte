@@ -302,7 +302,7 @@
     </div>
 
     <div class="dashboard-grid">
-      <section class="chart-section">
+      <section class="chart-section favorite-tools">
         <h2>Favorite Tools</h2>
         <WordCloud 
           data={favoriteToolData} 
@@ -310,7 +310,7 @@
         />
       </section>
 
-      <section class="chart-section">
+      <section class="chart-section favorite-viz">
         <h2>Favorite Visualizations</h2>
         <WordCloud 
           data={favoriteVizData} 
@@ -318,7 +318,7 @@
         />
       </section>
 
-      <section class="chart-section">
+      <section class="chart-section toolbox">
         <h2>GovEx Tool Box</h2>
         <HorizontalBarChart 
           data={toolBoxData} 
@@ -328,7 +328,7 @@
         />
       </section>
 
-      <section class="chart-section">
+      <section class="chart-section most-used-charts">
         <h2>GovEx Most Used Charts</h2>
         <HorizontalBarChart 
           data={mostUsedChartsData} 
@@ -581,6 +581,19 @@
       min-width: auto;
       padding: 1rem;
       font-size: 0.9rem;
+    }
+    /* Reorder visualizations to group tool and chart type together */
+    .favorite-tools {
+      order: 1;
+    }
+    .toolbox {
+      order: 2;
+    }
+    .favorite-viz {
+      order: 3;
+    }
+    .most-used-charts {
+      order: 4;
     }
   }
 
