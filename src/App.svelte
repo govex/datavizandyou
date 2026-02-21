@@ -562,6 +562,7 @@
     margin: 0;
     border-radius: 0;
     box-shadow: none;
+    height: calc(100% - 3rem);
   }
   .chart-section h2 {
     margin: 0 0 1rem 0;
