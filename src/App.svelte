@@ -269,22 +269,26 @@
       // Clear any pending orientation change
       clearTimeout(orientationTimeout);
       
-      // Debounce orientation changes to avoid rapid-fire re-renders
+      // Longer delay for orientation changes - mobile browsers need time to settle
       orientationTimeout = setTimeout(() => {
-        // Force a reflow to fix viewport unit calculations
+        // Force multiple reflows to ensure dimensions are fresh
         const element = document.documentElement;
         const originalDisplay = element.style.display;
+        
         element.style.display = 'none';
-        // Force a reflow
         void element.offsetHeight;
         element.style.display = originalDisplay;
         
-        // Wait a bit more for the orientation to settle
+        // Force a second reflow after a short delay
         setTimeout(() => {
-          // Dispatch a resize event to trigger component recalculations
-          window.dispatchEvent(new Event('resize'));
+          void element.offsetHeight;
+          
+          // Dispatch resize event after orientation fully settles
+          setTimeout(() => {
+            window.dispatchEvent(new Event('resize'));
+          }, 150); // Longer settle time
         }, 100);
-      }, 200);
+      }, 300); // Longer debounce for orientation
     }
 
     // Listen for both orientationchange and resize events

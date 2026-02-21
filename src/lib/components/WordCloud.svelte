@@ -10,6 +10,7 @@
 
   let chartContainer;
   let mounted = false;
+  let previousWidth = 0;
   
   // Check if we have enough data for a word cloud
   let hasEnoughData = $derived(data && data.length >= 2);
@@ -114,11 +115,11 @@
       if (mounted && hasEnoughData && chartContainer) {
         // Force read of fresh dimensions
         const newWidth = chartContainer.clientWidth;
-        const newHeight = chartContainer.clientHeight;
         
-        // Only re-render if dimensions actually changed significantly
-        // This prevents URL bar hide/show from triggering re-renders
-        if (newWidth > 0 && newHeight > 0) {
+        // ONLY re-render if WIDTH changed (not height from scrolling/URL bar)
+        // This prevents re-renders when mobile URL bar hides/shows (height change only)
+        if (newWidth > 0 && newWidth !== previousWidth) {
+          previousWidth = newWidth;
           renderCloud();
         }
       }
@@ -137,6 +138,10 @@
   // Only track data changes, not derived hasEnoughData state
   $effect(() => {
     if (mounted && data.length > 0) {
+      // Update width tracking when data changes
+      if (chartContainer) {
+        previousWidth = chartContainer.clientWidth;
+      }
       renderCloud();
     }
   });
@@ -159,6 +164,10 @@
     border-radius: 0;
     box-shadow: none;
     font-family: 'Work Sans', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
   }
 
   :global(.cloud-container text) {
