@@ -507,12 +507,10 @@
     font-weight: 600;
     padding: 0.2rem 0.5rem;
     border: none;
-    margin: 1rem 0 0 0;
+    margin: .5rem 0 0;
     box-shadow: none;
     opacity: 0.7;
     text-align: right;
-    width: 100%;
-    max-width: 1400px;
   }
 
 
