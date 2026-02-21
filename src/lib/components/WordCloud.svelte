@@ -115,13 +115,13 @@
   });
 </script>
 
-{#if hasEnoughData}
-  <div class="cloud-container" bind:this={chartContainer}></div>
-{:else}
-  <div class="placeholder-container">
-    <p class="placeholder-text">Not enough responses</p>
-  </div>
-{/if}
+<div class="cloud-container" bind:this={chartContainer}>
+  {#if !hasEnoughData}
+    <div class="placeholder-container">
+      <p class="placeholder-text">Not enough responses</p>
+    </div>
+  {/if}
+</div>
 
 <style>
   .cloud-container {
@@ -144,13 +144,11 @@
   }
   
   .placeholder-container {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-    position: relative;
-    background: #fff;
-    border-radius: 0;
-    box-shadow: none;
-    font-family: 'Work Sans', sans-serif;
     display: flex;
     align-items: center;
     justify-content: center;

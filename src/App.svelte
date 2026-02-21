@@ -604,7 +604,7 @@
     }
   }
 
-  @media (min-width: 1200px) {
+  @media (min-width: 900px) {
     .dashboard-grid {
       grid-template-columns: 1fr 1fr;
       grid-template-rows: 40vh 1fr;
