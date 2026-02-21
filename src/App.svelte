@@ -1,5 +1,5 @@
 <script>
-  // Google Fonts: Work Sans only
+  // Google Fonts: Work Sans only 
   if (typeof window !== 'undefined') {
     const font1 = document.createElement('link');
     font1.rel = 'stylesheet';
