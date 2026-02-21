@@ -554,6 +554,7 @@
   @media (min-width: 1200px) {
     .dashboard-grid {
       grid-template-columns: 1fr 1fr;
+      grid-template-rows: 40vh 1fr;
       gap: 2rem;
       padding: 0 2rem;
     }
