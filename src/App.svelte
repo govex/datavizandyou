@@ -642,12 +642,16 @@
     /* Reorder visualizations to group tool and chart type together */
     .favorite-tools {
       order: 1;
+      height: 250px;
+      max-width: 100vw;
     }
     .toolbox {
       order: 2;
     }
     .favorite-viz {
       order: 3;
+      height: 250px;
+      max-width: 100vw;
     }
     .most-used-charts {
       order: 4;
