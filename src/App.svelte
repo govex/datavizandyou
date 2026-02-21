@@ -548,8 +548,8 @@
   .dashboard-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 1.5rem;
-    margin-top: 1.5rem;
+    gap: 1rem;
+    margin-top: 0.5rem;
     padding: 0 1rem;
     max-width: 1400px;
     margin-left: auto;
@@ -558,14 +558,14 @@
   }
   .chart-section {
     background: #fff;
-    padding: 1.5rem;
+    padding: 0.5rem;
     margin: 0;
     border-radius: 0;
     box-shadow: none;
-    height: calc(100% - 3rem);
+    height: calc(100% - 1rem);
   }
   .chart-section h2 {
-    margin: 0 0 1rem 0;
+    margin: 0;
     font-size: 1.3rem;
     color: #002D72;
     font-family: 'Work Sans', sans-serif;
@@ -642,7 +642,7 @@
     .dashboard-grid {
       grid-template-columns: 1fr 1fr;
       grid-template-rows: 40vh 1fr;
-      gap: 2rem;
+      gap: 1rem;
       padding: 0 2rem;
     }
     .hero {

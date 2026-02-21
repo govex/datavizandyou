@@ -5,8 +5,7 @@
 
   let { 
     data = [], 
-    color = '#418FDE',
-    minHeight = 300
+    color = '#418FDE'
   } = $props();
 
   let chartContainer;
@@ -24,7 +23,7 @@
     if (!chartContainer || !data || data.length === 0) return;
 
     const containerWidth = chartContainer.clientWidth;
-    const containerHeight = chartContainer.clientHeight || minHeight;
+    const containerHeight = chartContainer.clientHeight || 300;
 
     // Clear existing SVG
     d3.select(chartContainer).select('svg').remove();
