@@ -258,6 +258,39 @@
       }
     };
   });
+
+  // Handle orientation changes to fix viewport issues on mobile
+  $effect(() => {
+    if (typeof window === 'undefined') return;
+
+    function handleOrientationChange() {
+      // Force a reflow to fix viewport unit calculations
+      const element = document.documentElement;
+      const originalDisplay = element.style.display;
+      element.style.display = 'none';
+      // Force a reflow
+      void element.offsetHeight;
+      element.style.display = originalDisplay;
+      
+      // Dispatch a resize event to trigger component recalculations
+      window.dispatchEvent(new Event('resize'));
+    }
+
+    // Listen for both orientationchange and resize events
+    window.addEventListener('orientationchange', handleOrientationChange);
+    
+    // Also handle screen.orientation API if available
+    if (screen.orientation) {
+      screen.orientation.addEventListener('change', handleOrientationChange);
+    }
+
+    return () => {
+      window.removeEventListener('orientationchange', handleOrientationChange);
+      if (screen.orientation) {
+        screen.orientation.removeEventListener('change', handleOrientationChange);
+      }
+    };
+  });
 </script>
 
 <main>
