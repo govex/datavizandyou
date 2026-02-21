@@ -534,6 +534,7 @@
   }
   .chart-section h2 {
     margin: 0;
+    margin-left: 1rem;
     font-size: 1.3rem;
     color: #002D72;
     /* font-family: 'Work Sans', sans-serif; */
