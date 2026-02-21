@@ -647,6 +647,7 @@
     }
     .toolbox {
       order: 2;
+      max-width: 100vw;
     }
     .favorite-viz {
       order: 3;
@@ -655,6 +656,7 @@
     }
     .most-used-charts {
       order: 4;
+      max-width: 100vw;
     }
   }
 
