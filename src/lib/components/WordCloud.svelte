@@ -11,7 +11,6 @@
 
   let chartContainer;
   let mounted = false;
-  let containerHeight = $state(minHeight);
   
   // Check if we have enough data for a word cloud
   let hasEnoughData = $derived(data && data.length >= 2);
@@ -25,12 +24,7 @@
     if (!chartContainer || !data || data.length === 0) return;
 
     const containerWidth = chartContainer.clientWidth;
-    // 2:1 aspect ratio on desktop (half as tall as wide), square on mobile
-    const aspectRatio = containerWidth >= 768 ? 0.5 : 1;
-    const calculatedHeight = Math.max(minHeight, containerWidth * aspectRatio);
-    
-    // Update the reactive container height
-    containerHeight = calculatedHeight;
+    const containerHeight = chartContainer.clientHeight || minHeight;
 
     // Clear existing SVG
     d3.select(chartContainer).select('svg').remove();
@@ -121,9 +115,9 @@
 </script>
 
 {#if hasEnoughData}
-  <div class="cloud-container" bind:this={chartContainer} style="height: {containerHeight}px;"></div>
+  <div class="cloud-container" bind:this={chartContainer}></div>
 {:else}
-  <div class="placeholder-container" style="height: {containerHeight}px;">
+  <div class="placeholder-container">
     <p class="placeholder-text">Not enough responses</p>
   </div>
 {/if}
@@ -131,6 +125,7 @@
 <style>
   .cloud-container {
     width: 100%;
+    height: 100%;
     position: relative;
     background: #fff;
     border-radius: 0;
@@ -149,6 +144,7 @@
   
   .placeholder-container {
     width: 100%;
+    height: 100%;
     position: relative;
     background: #fff;
     border-radius: 0;
