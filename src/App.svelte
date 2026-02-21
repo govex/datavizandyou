@@ -419,14 +419,12 @@
     margin: 0 0 0.25rem 0;
     margin-top: 0;
     color: #fff;
-    letter-spacing: -1px;
   }
   .hero-headlines p {
     font-size: 0.95rem;
     margin: 0;
     color: #fff;
     font-weight: 400;
-    letter-spacing: 0.5px;
     opacity: 0.95;
   }
   .hero-buttons {
@@ -538,7 +536,6 @@
     color: #002D72;
     font-family: 'Work Sans', sans-serif;
     font-weight: 700;
-    letter-spacing: -0.5px;
   }
 
   footer {
@@ -579,9 +576,9 @@
       justify-content: space-between;
     }
     .qr-hero-block {
-      padding: 0.75rem;
+      padding: 0.5rem;
       min-width: auto;
-      flex: 1 1 calc(50% - 0.375rem);
+      flex: 0 0 calc(50% - 1rem);
     }
     .qr-hero-block :global(img),
     .qr-hero-block :global(svg) {
@@ -591,7 +588,6 @@
       min-width: auto;
       padding: 1rem;
       font-size: 0.9rem;
-      flex: 1 1 calc(50% - 0.375rem);
     }
     /* Reorder visualizations to group tool and chart type together */
     .favorite-tools {
