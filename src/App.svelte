@@ -594,20 +594,20 @@
     .favorite-tools {
       order: 1;
       height: 250px;
-      max-width: 100vw;
+      max-width: calc(100vw - 40px - 1rem);
     }
     .toolbox {
       order: 2;
-      max-width: 100vw;
+      max-width: calc(100vw - 40px - 1rem);
     }
     .favorite-viz {
       order: 3;
       height: 250px;
-      max-width: 100vw;
+      max-width: calc(100vw - 40px - 1rem);
     }
     .most-used-charts {
       order: 4;
-      max-width: 100vw;
+      max-width: calc(100vw - 40px - 1rem);
     }
   }
 
