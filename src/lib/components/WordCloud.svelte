@@ -11,6 +11,7 @@
 
   let chartContainer;
   let mounted = false;
+  let containerHeight = $state(minHeight);
 
   // Constants
   const MAX_FONT_SIZE = 48;
@@ -23,7 +24,10 @@
     const containerWidth = chartContainer.clientWidth;
     // 2:1 aspect ratio on desktop (half as tall as wide), square on mobile
     const aspectRatio = containerWidth >= 768 ? 0.5 : 1;
-    const containerHeight = Math.max(minHeight, containerWidth * aspectRatio);
+    const calculatedHeight = Math.max(minHeight, containerWidth * aspectRatio);
+    
+    // Update the reactive container height
+    containerHeight = calculatedHeight;
 
     // Clear existing SVG
     d3.select(chartContainer).select('svg').remove();
@@ -111,12 +115,11 @@
   });
 </script>
 
-<div class="cloud-container" bind:this={chartContainer}></div>
+<div class="cloud-container" bind:this={chartContainer} style="height: {containerHeight}px;"></div>
 
 <style>
   .cloud-container {
     width: 100%;
-    min-height: 300px;
     position: relative;
     background: #fff;
     border-radius: 0;
