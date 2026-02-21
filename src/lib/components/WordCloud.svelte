@@ -10,7 +10,6 @@
 
   let chartContainer;
   let mounted = false;
-  let previousWidth = 0;
   
   // Check if we have enough data for a word cloud
   let hasEnoughData = $derived(data && data.length >= 2);
@@ -23,10 +22,6 @@
   function renderCloud() {
     if (!chartContainer || !data || data.length === 0) return;
 
-    // Force a layout recalculation to get fresh dimensions
-    // This fixes the double-width bug after orientation changes
-    void chartContainer.offsetHeight;
-    
     const containerWidth = chartContainer.clientWidth;
     const containerHeight = chartContainer.clientHeight || 250;
     
@@ -110,20 +105,11 @@
     };
 
     // Re-render on window resize with debouncing
-    // Use longer debounce to avoid URL bar scroll triggers
     const handleResize = debounce(() => {
       if (mounted && hasEnoughData && chartContainer) {
-        // Force read of fresh dimensions
-        const newWidth = chartContainer.clientWidth;
-        
-        // ONLY re-render if WIDTH changed (not height from scrolling/URL bar)
-        // This prevents re-renders when mobile URL bar hides/shows (height change only)
-        if (newWidth > 0 && newWidth !== previousWidth) {
-          previousWidth = newWidth;
-          renderCloud();
-        }
+        renderCloud();
       }
-    }, 300); // 300ms debounce to filter out URL bar changes
+    }, 300); // 300ms debounce for performance
 
     window.addEventListener('resize', handleResize);
 
@@ -135,13 +121,8 @@
   });
 
   // Re-render when data changes (but skip if not mounted yet)
-  // Only track data changes, not derived hasEnoughData state
   $effect(() => {
     if (mounted && data.length > 0) {
-      // Update width tracking when data changes
-      if (chartContainer) {
-        previousWidth = chartContainer.clientWidth;
-      }
       renderCloud();
     }
   });

@@ -258,55 +258,6 @@
       }
     };
   });
-
-  // Handle orientation changes to fix viewport issues on mobile
-  $effect(() => {
-    if (typeof window === 'undefined') return;
-
-    let orientationTimeout;
-
-    function handleOrientationChange() {
-      // Clear any pending orientation change
-      clearTimeout(orientationTimeout);
-      
-      // Longer delay for orientation changes - mobile browsers need time to settle
-      orientationTimeout = setTimeout(() => {
-        // Force multiple reflows to ensure dimensions are fresh
-        const element = document.documentElement;
-        const originalDisplay = element.style.display;
-        
-        element.style.display = 'none';
-        void element.offsetHeight;
-        element.style.display = originalDisplay;
-        
-        // Force a second reflow after a short delay
-        setTimeout(() => {
-          void element.offsetHeight;
-          
-          // Dispatch resize event after orientation fully settles
-          setTimeout(() => {
-            window.dispatchEvent(new Event('resize'));
-          }, 150); // Longer settle time
-        }, 100);
-      }, 300); // Longer debounce for orientation
-    }
-
-    // Listen for both orientationchange and resize events
-    window.addEventListener('orientationchange', handleOrientationChange);
-    
-    // Also handle screen.orientation API if available
-    if (screen.orientation) {
-      screen.orientation.addEventListener('change', handleOrientationChange);
-    }
-
-    return () => {
-      clearTimeout(orientationTimeout);
-      window.removeEventListener('orientationchange', handleOrientationChange);
-      if (screen.orientation) {
-        screen.orientation.removeEventListener('change', handleOrientationChange);
-      }
-    };
-  });
 </script>
 
 <main>
