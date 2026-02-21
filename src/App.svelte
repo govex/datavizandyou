@@ -518,7 +518,7 @@
     gap: 1rem;
     margin-top: 0.5rem;
     padding: 0 1rem;
-    max-width: 1400px;
+    max-width: calc(100vw - 2rem);
     margin-left: auto;
     margin-right: auto;
     align-items: start;
@@ -530,6 +530,7 @@
     border-radius: 0;
     box-shadow: none;
     height: calc(100% - 1rem);
+    max-width: calc(50vw - 4rem);
   }
   .chart-section h2 {
     margin: 0;
