@@ -107,8 +107,9 @@
   });
 
   // Re-render when data changes (but skip if not mounted yet)
+  // Only track data changes, not derived hasEnoughData state
   $effect(() => {
-    if (mounted && hasEnoughData) {
+    if (mounted && data.length > 0) {
       renderCloud();
     }
   });
