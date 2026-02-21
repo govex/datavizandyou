@@ -350,9 +350,9 @@
     min-height: 200px;
     position: relative;
     background: #fff;
-    border-radius: 0;
+    /* border-radius: 0;
     box-shadow: none;
-    font-family: 'Work Sans', sans-serif;
+    font-family: 'Work Sans', sans-serif; */
   }
 
   :global(.bar) {
@@ -374,7 +374,7 @@
     border: 1px solid #e0e0e0;
     border-radius: 6px;
     color: #002D72;
-    font-family: 'Work Sans', sans-serif;
+    /* font-family: 'Work Sans', sans-serif; */
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;

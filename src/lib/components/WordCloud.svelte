@@ -76,7 +76,7 @@
         .enter()
         .append('text')
         .style('font-size', d => `${d.size}px`)
-        .style('font-family', 'Work Sans')
+        // .style('font-family', 'Work Sans')
         .style('font-weight', '600')
         .style('fill', color)
         .attr('text-anchor', 'middle')
@@ -144,7 +144,7 @@
     background: #fff;
     border-radius: 0;
     box-shadow: none;
-    font-family: 'Work Sans', sans-serif;
+    /* font-family: 'Work Sans', sans-serif; */
     display: flex;
     align-items: center;
     justify-content: center;
