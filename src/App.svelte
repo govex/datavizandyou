@@ -263,17 +263,28 @@
   $effect(() => {
     if (typeof window === 'undefined') return;
 
+    let orientationTimeout;
+
     function handleOrientationChange() {
-      // Force a reflow to fix viewport unit calculations
-      const element = document.documentElement;
-      const originalDisplay = element.style.display;
-      element.style.display = 'none';
-      // Force a reflow
-      void element.offsetHeight;
-      element.style.display = originalDisplay;
+      // Clear any pending orientation change
+      clearTimeout(orientationTimeout);
       
-      // Dispatch a resize event to trigger component recalculations
-      window.dispatchEvent(new Event('resize'));
+      // Debounce orientation changes to avoid rapid-fire re-renders
+      orientationTimeout = setTimeout(() => {
+        // Force a reflow to fix viewport unit calculations
+        const element = document.documentElement;
+        const originalDisplay = element.style.display;
+        element.style.display = 'none';
+        // Force a reflow
+        void element.offsetHeight;
+        element.style.display = originalDisplay;
+        
+        // Wait a bit more for the orientation to settle
+        setTimeout(() => {
+          // Dispatch a resize event to trigger component recalculations
+          window.dispatchEvent(new Event('resize'));
+        }, 100);
+      }, 200);
     }
 
     // Listen for both orientationchange and resize events
@@ -285,6 +296,7 @@
     }
 
     return () => {
+      clearTimeout(orientationTimeout);
       window.removeEventListener('orientationchange', handleOrientationChange);
       if (screen.orientation) {
         screen.orientation.removeEventListener('change', handleOrientationChange);
@@ -580,7 +592,7 @@
   }
 
 
-  @media (max-width: 767px) {
+  @media (max-width: 899px) {
     .hero {
       padding: 15px 20px;
     }

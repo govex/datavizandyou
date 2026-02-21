@@ -22,8 +22,17 @@
   function renderCloud() {
     if (!chartContainer || !data || data.length === 0) return;
 
+    // Force a layout recalculation to get fresh dimensions
+    // This fixes the double-width bug after orientation changes
+    void chartContainer.offsetHeight;
+    
     const containerWidth = chartContainer.clientWidth;
-    const containerHeight = chartContainer.clientHeight || 300;
+    const containerHeight = chartContainer.clientHeight || 250;
+    
+    // Safety check: don't render if dimensions are invalid
+    if (containerWidth <= 0 || containerHeight <= 0) {
+      return;
+    }
 
     // Clear existing SVG
     d3.select(chartContainer).select('svg').remove();
@@ -90,16 +99,35 @@
       renderCloud();
     }
 
-    // Re-render on window resize
-    const handleResize = () => {
-      if (mounted && hasEnoughData) {
-        renderCloud();
-      }
+    // Debounce utility to prevent excessive re-renders
+    let resizeTimeout;
+    const debounce = (func, wait) => {
+      return (...args) => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => func(...args), wait);
+      };
     };
+
+    // Re-render on window resize with debouncing
+    // Use longer debounce to avoid URL bar scroll triggers
+    const handleResize = debounce(() => {
+      if (mounted && hasEnoughData && chartContainer) {
+        // Force read of fresh dimensions
+        const newWidth = chartContainer.clientWidth;
+        const newHeight = chartContainer.clientHeight;
+        
+        // Only re-render if dimensions actually changed significantly
+        // This prevents URL bar hide/show from triggering re-renders
+        if (newWidth > 0 && newHeight > 0) {
+          renderCloud();
+        }
+      }
+    }, 300); // 300ms debounce to filter out URL bar changes
 
     window.addEventListener('resize', handleResize);
 
     return () => {
+      clearTimeout(resizeTimeout);
       window.removeEventListener('resize', handleResize);
       mounted = false;
     };
