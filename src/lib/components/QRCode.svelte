@@ -35,10 +35,7 @@
   }
 
   .qr-code {
-    /* border: none;
-    border-radius: 8px; */
     padding: 0;
-    /* background: white; */
     transition: opacity 0.2s;
   }
 

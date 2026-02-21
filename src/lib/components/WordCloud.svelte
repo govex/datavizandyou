@@ -141,10 +141,6 @@
     width: 100%;
     height: calc(100% - 2rem);
     position: relative;
-    /* background: #fff;
-    border-radius: 0;
-    box-shadow: none; */
-    /* font-family: 'Work Sans', sans-serif; */
     display: flex;
     align-items: center;
     justify-content: center;
