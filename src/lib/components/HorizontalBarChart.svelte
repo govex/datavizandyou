@@ -222,17 +222,12 @@
             .style('font-size', AXIS_TEXT_SIZE);
         });
 
-      // Update Y axis
+      // Update Y axis - no transition to prevent label shifting
       chartGroup.select('.y-axis')
-        .transition()
-        .duration(ANIMATION_DURATION_UPDATE)
         .call(yAxis)
-        .on('end', function() {
-          // Style and wrap text after transition completes
-          d3.select(this).selectAll('text')
-            .style('font-size', AXIS_TEXT_SIZE)
-            .call(wrapText, margin.left - LABEL_PADDING);
-        });
+        .selectAll('text')
+        .style('font-size', AXIS_TEXT_SIZE)
+        .call(wrapText, margin.left - LABEL_PADDING);
     }
 
     // Data join for bars with enter/update/exit pattern
