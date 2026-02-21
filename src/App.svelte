@@ -556,9 +556,6 @@
       gap: 2rem;
       padding: 0 2rem;
     }
-    .chart-section {
-      padding: 2rem 1.5rem;
-    }
     .hero {
       padding: 20px 50px;
       width: calc(100vw - 100px);
