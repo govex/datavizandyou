@@ -525,6 +525,7 @@
     max-width: 1400px;
     margin-left: auto;
     margin-right: auto;
+    align-items: start;
   }
   .chart-section {
     background: #fff;
@@ -532,7 +533,6 @@
     margin: 0;
     border-radius: 0;
     box-shadow: none;
-    flex: 1 1 0%;
   }
   .chart-section h2 {
     margin: 0 0 1rem 0;
