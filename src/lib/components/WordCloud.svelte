@@ -139,11 +139,11 @@
 <style>
   .cloud-container {
     width: 100%;
-    height: 100%;
+    height: calc(100% - 2rem);
     position: relative;
-    background: #fff;
+    /* background: #fff;
     border-radius: 0;
-    box-shadow: none;
+    box-shadow: none; */
     /* font-family: 'Work Sans', sans-serif; */
     display: flex;
     align-items: center;

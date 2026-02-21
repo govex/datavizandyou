@@ -367,7 +367,9 @@
   
   .expand-btn {
     display: block;
-    width: 100%;
+    width: max-content;
+    margin-left: auto;
+    margin-right: auto;
     margin-top: 1rem;
     padding: 0.75rem;
     background: #f5f5f5;
