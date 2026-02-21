@@ -6,7 +6,7 @@
 </script>
 
 <div class="qr-container">
-  <a href={url} target="_blank" rel="noopener noreferrer">
+  <a href={url} target="_blank" rel="noopener noreferrer" class="qr-link-wrapper">
     <img 
       src="/survey.png" 
       alt="QR Code" 
@@ -15,11 +15,9 @@
       class="qr-code"
     />
   </a>
-  <p class="qr-link">
-    <a href={url} target="_blank" rel="noopener noreferrer">
-      Or click here to open the form
-    </a>
-  </p>
+  <a href={url} target="_blank" rel="noopener noreferrer" class="text-link">
+    Open Form
+  </a>
 </div>
 
 <style>
@@ -27,28 +25,34 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .qr-link-wrapper {
+    display: block;
+    line-height: 0;
   }
 
   .qr-code {
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
     padding: 0;
-    background: white;
-    transition: transform 0.2s;
+    transition: opacity 0.2s;
   }
 
-
-
-  .qr-link {
-    margin: 0;
+  .qr-code:hover {
+    opacity: 0.9;
   }
 
-  .qr-link a {
-    color: #4A90E2;
+  .text-link {
+    color: #002D72;
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+    text-align: center;
   }
 
-
+  .text-link:hover {
+    color: #418FDE;
+  }
 </style>
